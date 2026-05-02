@@ -334,7 +334,7 @@ The acceptance criteria are the arch-design's binding commitment. If the impleme
 |---|---|
 | **Design study** | An arch-design may be produced from a design study. The study records the reasoning; the arch-design records the settled result. The `design-study` metadata field links them. When no study exists, the Design Decisions section provides inline rationale. |
 | **Spec** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters (CLI tools, API endpoints, configuration changes), use a spec instead. Both document types can coexist for complex features with distinct external and internal concerns. |
-| **Implementation plan** (deprecated) | Implementation plans are deprecated. When an arch-design exists, beads issue tracking replaces the plan for sequencing and task management. See [Beads Standards](https://github.com/dichodaemon/carula/blob/master/docs/standards/beads_standards.md). |
+| **Implementation plan** (deprecated) | Implementation plans are deprecated. When an arch-design exists, beads issue tracking replaces the plan for sequencing and task management. See [Beads Standards](../standards/beads_standards.md). |
 | **Brief** | A brief may identify that an arch-design is needed. The brief frames the work; the arch-design (possibly after a design study) settles the architecture. |
 | **Cookbook** | If an arch-design surfaces practical implementation findings (tool quirks, workarounds, patterns), those belong in a cookbook entry, not in the arch-design. |
 

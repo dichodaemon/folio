@@ -2,7 +2,7 @@
 
 > **Deprecated.** This document type is deprecated. Do not create new implementation plans.
 >
-> - **New-feature plans** are replaced by beads issue tracking with a companion document (arch-design or spec). See the [Beads Standards](https://github.com/dichodaemon/carula/blob/master/docs/standards/beads_standards.md) for the workflow.
+> - **New-feature plans** are replaced by beads issue tracking with a companion document (arch-design or spec). See the [Beads Standards](../standards/beads_standards.md) for the workflow.
 > - **Bug-fix plans** are replaced by a dedicated bug-fix document type (to be defined). Until that type exists, the bug-fix plan template below remains usable.
 > - **Refactoring work** is replaced by a dedicated refactoring document type or workflow (to be defined). Until that type exists, use beads issues with an arch-design companion.
 >
