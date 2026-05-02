@@ -15,7 +15,7 @@ A spec exists to:
 
 A spec is NOT:
 
-- An implementation plan. A plan covers *how* to build it (task breakdown, file changes, sequencing). A spec covers *what* to build and *why*. See [Implementation Plan Reference](impl-plan_definition.md).
+- An implementation plan (deprecated). Task sequencing and tracking are now handled by beads issue tracking. A spec covers *what* to build and *why*; beads issues cover *how* and *in what order*. See [Implementation Plan Reference](impl-plan_definition.md).
 - A design study. If alternatives were evaluated, the spec records the winner and the rationale, not the full analysis. The analysis belongs in a design study. See [Design Study Definition](design-study_definition.md).
 - An arch-design. An arch-design defines internal architecture: types, decomposition, and function contracts. For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters, use a spec. See [Architecture Design Definition](arch-design_definition.md).
 - A ticket or task tracker. It doesn't track who is doing what or when.
@@ -104,7 +104,7 @@ The technical description of what will be built. This is the heart of the spec.
 
 **What does NOT belong here:**
 
-- Implementation details that don't affect behavior (internal data structures, algorithm choice, code organization). Those belong in the implementation plan.
+- Implementation details that don't affect behavior (internal data structures, algorithm choice, code organization). Those belong in the arch-design or in beads issue descriptions.
 - Code snippets longer than ~10 lines. If you need code to explain the design, the design may be too coupled to a specific implementation.
 
 ### 2.6. Acceptance Criteria (required)
@@ -211,7 +211,7 @@ A spec covers one feature, one change, or one coherent set of related changes. I
 | Anti-pattern | Problem | Fix |
 |---|---|---|
 | **Solution-first spec** | Jumps to implementation without establishing the problem. | Write the objective and non-goals before touching the solution section. |
-| **Spec as implementation plan** | Includes task breakdowns, file-by-file change lists, or code organization decisions. | Split into spec (what) and plan (how). |
+| **Spec as implementation plan** | Includes task breakdowns, file-by-file change lists, or code organization decisions. | Split into spec (what) and beads issues (how). |
 | **Acceptance-free spec** | No testable criteria for "done." | Add acceptance criteria before moving to `review`. |
 | **Kitchen-sink non-goals** | Lists things nobody would expect to be in scope ("This spec does not address climate change"). | Each non-goal should be something a reasonable reader might assume is in scope. |
 | **Abandoned open questions** | Questions listed but never resolved, even in `implemented` status. | Resolve before `approved`. If truly unanswerable, convert to a non-goal or a known limitation in the solution. |

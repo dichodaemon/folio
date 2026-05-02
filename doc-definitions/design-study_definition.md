@@ -179,7 +179,7 @@ The transition from `resolved` to `archived` happens when the deliverables are i
 | **Spec** | A design study may produce a spec as a deliverable. The spec records the committed decision; the study records the analysis that led to it. The spec's Design Decisions section can reference the study for full rationale. |
 | **Arch-design** | A design study may produce an arch-design as a deliverable. The arch-design records the settled internal architecture; the study records the reasoning that produced it. For library and subsystem work, the arch-design subsumes the spec as the primary deliverable. See [Architecture Design Definition](arch-design_definition.md). |
 | **Doc-standard** | A design study may produce a doc-standard as a deliverable (e.g., a study of document organization produces a doc-standard for directory structure). |
-| **Implementation plan** | A plan implements a spec, not a study. The chain is: study → spec (or doc-standard) → plan. |
+| **Implementation plan** (deprecated) | Implementation plans are deprecated. The chain is now: study -> arch-design (or spec) -> beads issues. See [Beads Standards](https://github.com/dichodaemon/carula/blob/master/docs/standards/beads_standards.md). |
 | **Cookbook** | If a study surfaces practical findings along the way (tool quirks, workarounds), those belong in a cookbook entry, not in the study. |
 
 ---

@@ -1,5 +1,21 @@
 # Implementation Plan Definition
 
+> **Deprecated.** This document type is deprecated. Do not create new implementation plans.
+>
+> - **New-feature plans** are replaced by beads issue tracking with a companion document (arch-design or spec). See the [Beads Standards](https://github.com/dichodaemon/carula/blob/master/docs/standards/beads_standards.md) for the workflow.
+> - **Bug-fix plans** are replaced by a dedicated bug-fix document type (to be defined). Until that type exists, the bug-fix plan template below remains usable.
+> - **Refactoring work** is replaced by a dedicated refactoring document type or workflow (to be defined). Until that type exists, use beads issues with an arch-design companion.
+>
+> Existing plans remain valid as historical records. Do not update them; archive them.
+
+---
+
+## Historical Reference
+
+The content below is preserved for understanding existing plans. It is not a template for new work.
+
+---
+
 Reference for writing implementation plan documents. A plan is a working document. It answers: how are we building this, in what order, and what are the risks? It's most useful before and during the build. After the feature ships, it loses value quickly -- the code is the truth now. Don't try to keep it perfectly current post-ship; archive it instead.
 
 ---
@@ -28,14 +44,14 @@ Plans fall into two categories with different structures. Use the one that match
 
 | Template | Use when | Key sections |
 |---|---|---|
-| **New-feature plan** | Building something new from a spec | Spec link, status table, architecture, data model, solution breakdown, design decisions, success criteria |
-| **Bug-fix plan** | Investigating and fixing a defect | Problem statement, root cause, diagnostic evidence, fix, validation, cleanup |
+| **New-feature plan** (deprecated) | Building something new from a spec | Spec link, status table, architecture, data model, solution breakdown, design decisions, success criteria |
+| **Bug-fix plan** (deprecated) | Investigating and fixing a defect | Problem statement, root cause, diagnostic evidence, fix, validation, cleanup |
 
 Both share universal patterns (section 2.3) but differ in structure because the work is fundamentally different: new features are designed forward from a spec; bug fixes are investigated backward from a symptom.
 
 ---
 
-## 3. Structure: New-Feature Plan
+## 3. Structure: New-Feature Plan (deprecated)
 
 ### 3.1. Metadata (required)
 
@@ -163,7 +179,7 @@ When all success criteria pass, update the status to `complete`.
 
 ---
 
-## 4. Structure: Bug-Fix Plan
+## 4. Structure: Bug-Fix Plan (deprecated)
 
 ### 4.1. Metadata (required)
 
@@ -298,162 +314,6 @@ The transition from `complete` to `archived` should happen when the code is merg
 | **Post-ship maintenance** | Updating the plan after the code has diverged. The plan becomes a second source of truth that contradicts the code. | Archive the plan. Write a new plan if a new change is needed. |
 | **No validation criteria** | "Test that it works" instead of observable before/after conditions. | State what you'll observe, in what tool, with what values. |
 | **Hypothesis-free debugging** | Bug-fix plan jumps to a fix without documenting the root cause investigation. | Document what you investigated, what you found, and why. The next person with similar symptoms needs this. |
-
----
-
-## 8. Minimal Example: New-Feature Plan
-
-This example represents the floor for a new-feature plan. Complex features will have longer solution breakdown sections, more data model changes, and more design decisions.
-
-````markdown
----
-title: Build Log Notifier -- Implementation Plan
-status: complete
-date: 2026-04-07
-author: Jane Smith
-spec: 2026-04-07_build-log-notifier_spec.md
----
-
-# Build Log Notifier -- Implementation Plan
-
-Implements [Build Log Notifier spec](2026-04-07_build-log-notifier_spec.md).
-
-## 1. Implementation Status
-
-**Phases:**
-1. **Implementation** -- create the wrapper function with all logic
-2. **Validation** -- verify behavior in dev container (depends on phase 1)
-
-| # | Task | Status |
-|---|---|---|
-| 1.1 | Create `bz.sh` wrapper function | Complete |
-| 1.2 | Add notification logic with `notify-send` | Complete |
-| 1.3 | Add terminal bell fallback | Complete |
-| 1.4 | Format elapsed time as `Xm Ys` | Complete |
-| 2.1 | Manual validation in dev container | Complete |
-
-## 2. Architecture
-
-### 2.1. Directory Layout
-
-| File | Change |
-|---|---|
-| `~/.bashrc.d/bz.sh` | New file: `bz` wrapper function |
-| `~/.bashrc` | Confirm `~/.bashrc.d/*.sh` sourcing exists (no change expected) |
-
-### 2.2. Dependencies
-
-No new package dependencies. `notify-send` is pre-installed in the dev container image (`libnotify-bin`).
-
-## 3. Solution Breakdown
-
-### 3.1. `bz` function (`~/.bashrc.d/bz.sh`)
-
-1. Capture `$SECONDS` before invoking bazel.
-2. Run `bazel "$@"` and capture exit code in `$rc`.
-3. Compute elapsed: `elapsed=$((SECONDS - start))`. Format as `Xm Ys`.
-4. Build summary string: `bazel $* -- ${formatted_time}`.
-5. If `command -v notify-send` succeeds:
-   - Exit code 0: `notify-send "Build passed" "$summary"`
-   - Exit code != 0: `notify-send -u critical "Build failed" "$summary"`
-6. Else: emit `\a` to stderr and print summary to stderr.
-7. `return $rc`.
-
-### 3.2. Edge cases
-
-- `bazel` not found: `bz` fails with `command not found` from the shell, not from wrapper logic. No special handling needed.
-- `$*` with special characters in target names: quoting preserves arguments for bazel via `"$@"`, but summary uses `$*` (space-joined) which is acceptable for display.
-
-## 4. Design Decisions
-
-| Decision | Choice | Rationale |
-|---|---|---|
-| Location of `bz.sh` | `~/.bashrc.d/` | Dev container rebuilds `/usr/local/bin/` on restart. `~/.bashrc.d/` persists across container rebuilds. |
-| `$SECONDS` vs `date` | `$SECONDS` | Built-in, no subprocess. Precision is sufficient (seconds). |
-| Notification urgency | `critical` for failures only | Prevents failure notifications from being auto-dismissed by the notification daemon. |
-
-## 5. Success Criteria
-
-- [ ] `bz build //my_project:all` sends "Build passed" notification on success.
-- [ ] `bz build //invalid:target` sends "Build failed" notification on failure.
-- [ ] Exit code of `bz` matches exit code of underlying `bazel` command.
-- [ ] In a container without `notify-send`, terminal bell sounds and summary prints to stderr.
-- [ ] Elapsed time displays as `3m 42s`, not `222`.
-- [ ] `bz.sh` is sourced automatically in new shell sessions.
-````
-
----
-
-## 9. Minimal Example: Bug-Fix Plan
-
-This example represents the floor for a bug-fix plan.
-
-````markdown
----
-title: Stale Build Cache After Branch Switch -- Fix Plan
-status: complete
-date: 2026-04-07
-author: Jane Smith
----
-
-# Stale Build Cache After Branch Switch -- Fix Plan
-
-## 1. Problem Statement
-
-After switching git branches in the dev container, `bazel build` occasionally uses stale cached outputs from the previous branch, producing link errors or runtime crashes. Frequency: ~1 in 5 branch switches. Impact: 5-15 minutes lost per occurrence while the developer diagnoses the stale cache and manually cleans.
-
-## 2. Root Cause
-
-Bazel's output base is keyed by workspace path, not by git branch. When branch A and branch B modify the same source file but produce different object files, a `bazel build` on branch B can reuse branch A's cached object if the file's content hash hasn't changed in Bazel's action cache (e.g., when only a header included by that file changed, and the header change is in a different package whose cache entry is still valid).
-
-The root cause is that `bazel`'s action cache does not account for transitive header changes across package boundaries when the direct source file is unchanged.
-
-## 3. Diagnostic Evidence
-
-```
-$ git checkout feature-branch
-$ bazel build //common:utils
-INFO: 0 processes (0 actions)   ← full cache hit, but headers changed
-$ ./bazel-bin/common/utils_test
-Segmentation fault               ← stale object linked against new header layout
-$ bazel clean --expunge && bazel build //common:utils
-INFO: 12 processes (12 actions)  ← forced rebuild succeeds
-```
-
-## 4. Fix
-
-**File:** `~/.bashrc.d/git-hooks.sh`
-**Change:** Add a `post-checkout` hook that runs `bazel clean --expunge` when the branch changes.
-
-```bash
-# post-checkout hook: clean bazel cache on branch switch
-post_checkout_hook() {
-  local prev_ref="$1" new_ref="$2" is_branch="$3"
-  if [[ "$is_branch" == "1" && "$prev_ref" != "$new_ref" ]]; then
-    echo "Branch changed: cleaning bazel cache..." >&2
-    bazel clean --expunge 2>/dev/null
-  fi
-}
-```
-
-Registered via `git config core.hooksPath` pointing to a hooks directory that includes this script.
-
-This is a conservative fix. A more targeted approach (selective cache invalidation) would require Bazel-side changes outside our control.
-
-## 5. Validation
-
-- [ ] Before fix: `bazel build` after branch switch produces 0 actions (stale cache hit) and subsequent test crashes.
-      After fix: `bazel build` after branch switch rebuilds affected targets (>0 actions) and tests pass.
-- [ ] Branch switch within the same branch (e.g., `git checkout .`) does NOT trigger `clean --expunge` (refs are equal).
-- [ ] `bazel clean --expunge` adds ~30s to branch switch. Acceptable given 5-15 min cost of diagnosing stale cache.
-
-## 6. Cleanup
-
-| File | Line | Action |
-|---|---|---|
-| No diagnostic instrumentation was added. | -- | None required. |
-````
-
 
 ---
 
