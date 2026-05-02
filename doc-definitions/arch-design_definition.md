@@ -250,6 +250,7 @@ The structural decomposition of the component. This is the heart of the document
 **Content:**
 
 - Subsystem or module decomposition -- what the parts are and how they relate.
+- Key abstractions -- the named interfaces and types that sit at module boundaries. One sentence per concept: what it is and which boundary it spans. Enough for the reader to follow Design Decisions and Responsibility Boundaries without forward-referencing the Types section.
 - Data flow -- what goes in, what comes out, what is stored, what flows between subsystems.
 - Diagrams (Mermaid) for structure or dependency relationships.
 
