@@ -215,3 +215,31 @@ Set `BEADS_DB` explicitly on every `bd` call. The routing table is in the sessio
 | **Deferring issue creation** | Context lost. "I'll create it later" -- you won't. | Create immediately. |
 | **Closing without verifying** | Acceptance criteria unchecked. | Verify before `bd close`. |
 | **Memories in MEMORY.md** | Fragments across accounts. Not injected at session start. | Use `bd remember`. |
+
+
+---
+
+## 8. Orchestrator Responsibilities
+
+When an orchestrator agent dispatches subagents (via the `task` tool or equivalent), beads protocol still applies. The subagent cannot follow protocol it does not know about.
+
+### 8.1. Required Context for Subagents
+
+The orchestrator **MUST** include the following in every subagent dispatch's shared `context` field:
+
+1. **`discovered-from` protocol** (sections 4.2--4.3, verbatim or summarized). Subagents must know to create issues immediately when they encounter unplanned work, missing prerequisites, or deviations -- not leave TODO comments or skip silently.
+2. **BEADS_DB path** for the workspace the subagent is modifying, so it can run `bd create` and `bd link`.
+3. **Current issue ID** the subagent is implementing, so `discovered-from` links are wired to the correct parent.
+4. **Blocking relationships** the subagent should wire if the discovered work blocks downstream issues. The orchestrator knows the dependency graph; the subagent does not.
+
+### 8.2. Anti-Patterns
+
+| Anti-pattern | Problem | Fix |
+|---|---|---|
+| **TODO instead of issue** | Discovered work is invisible to `bd ready`. No dependency tracking. Lost across sessions. | Subagent creates issue immediately with `discovered-from` link. |
+| **Omitting beads context from subagents** | Subagent has no way to follow protocol it was never told about. | Include sections 4.2--4.3 in every dispatch context. |
+| **Assuming subagent will read standards** | Subagents do not read folio standards unless explicitly instructed. | Provide the rules inline or by reference with a read directive. |
+
+### 8.3. Verification
+
+After subagent tasks complete, the orchestrator **SHOULD** check whether any subagent left TODO comments indicating discovered work. If found, the orchestrator creates the missing beads issue retroactively and wires dependencies.
