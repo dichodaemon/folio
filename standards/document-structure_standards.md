@@ -14,11 +14,12 @@ docs/
   standards/                    # Conventions and standards for practices
   references/                  # Records facts, configurations, practical knowledge
   cookbooks/                   # Domain-scoped append-only recipe collections
-  workflow/                    # Briefs, specs, plans, and design studies
+  workflow/                    # Briefs, specs, plans, design studies, and arch-designs
     briefs/
     specs/
     plans/
     design-studies/
+    arch-designs/
   archive/                     # Retired documents (preserving relative path)
 ```
 
@@ -32,7 +33,7 @@ Each top-level directory corresponds to a document role. Role is the primary org
 | `standards/` | Standards | Documents that define conventions, standards, and best practices for practices or domains. Normative over how we work. | Document format definitions (those go in `doc-definitions/`). |
 | `references/` | Reference | Reference material that records facts, configurations, and practical knowledge. Informative. | Cookbooks (they have their own directory). Component-level docs (they stay local). |
 | `cookbooks/` | Reference (special form) | Domain-scoped, append-only recipe collections following the cookbook format. | Any document that isn't a cookbook. One file per domain, named `<domain>_cookbook.md`. |
-| `workflow/` | Workflow | Artifacts of development workflows: briefs, specs, plans, design studies. Point-in-time documents with a lifecycle. | Permanent reference material. Documents without a lifecycle. |
+| `workflow/` | Workflow | Artifacts of development workflows: briefs, specs, plans, design studies, arch-designs. Documents with a lifecycle. | Permanent reference material. Documents without a lifecycle. |
 | `archive/` | Retired | Documents that have completed their lifecycle. | Active documents. Do not edit archived documents; write new ones instead. |
 
 ### 1.2. Cookbooks as a Separate Directory
@@ -49,6 +50,7 @@ Workflow documents are organized by document type:
 | `workflow/briefs/` | Briefs | [brief_definition.md](../doc-definitions/brief_definition.md) |
 | `workflow/plans/` | Implementation plans | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
 | `workflow/design-studies/` | Design studies | [design-study_definition.md](../doc-definitions/design-study_definition.md) |
+| `workflow/arch-designs/` | Architecture designs | [arch-design_definition.md](../doc-definitions/arch-design_definition.md) |
 
 ### 1.4. Archive Structure
 
@@ -102,6 +104,7 @@ The last underscore-delimited segment is always the doctype. This is positional,
 | `_spec` | Workflow | Feature specification |
 | `_plan` | Workflow | Implementation plan (new-feature or bug-fix) |
 | `_design-study` | Workflow | Structured analysis of a problem space with alternatives and evaluation |
+| `_arch-design` | Workflow | Settled internal architecture of a component, library, or subsystem |
 | `_definition` | Doc-definitions | Defines the format and conventions for a document type |
 | `_standards` | Standards | Defines conventions for a domain or practice |
 | `_cookbook` | Reference | Append-only collection of domain-scoped recipes |
@@ -188,5 +191,6 @@ When a document needs to mention an external resource (an upstream standard, a t
 | Feature specification | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
 | Implementation plan | `workflow/plans/` | `YYYY-MM-DD_<topic>_plan.md` |
 | Design study | `workflow/design-studies/` | `YYYY-MM-DD_<topic>_design-study.md` |
+| Architecture design | `workflow/arch-designs/` | `YYYY-MM-DD_<topic>_arch-design.md` |
 | Retired document | `archive/<original-path>/` | Same filename |
 | Component README | With the component (not in `docs/`) | `README.md` -- see [readme_definition.md](../doc-definitions/readme_definition.md) |

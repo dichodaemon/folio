@@ -17,6 +17,7 @@ A design study exists to:
 A design study is NOT:
 
 - A spec. A spec is a commitment document -- it records what will be built and what done looks like. A design study precedes commitment: it works through the problem space to inform a decision. See [Specification Document Reference](spec-doc_definition.md).
+- An arch-design. An arch-design records the settled internal architecture of a component -- types, contracts, decomposition. A design study precedes the arch-design: it works through the problem space; the arch-design records the result. See [Architecture Design Definition](arch-design_definition.md).
 - An implementation plan. A plan covers how to build a decided-upon solution. A design study covers which solution to choose. See [Implementation Plan Reference](impl-plan_definition.md).
 - A decision log. A decision log records conclusions ("we chose X because Y"). A design study records the analysis that produced the conclusion -- the dimensions, the alternatives, the evaluation. If the reasoning doesn't matter, a decision log entry is sufficient; if it does, write a design study.
 
@@ -176,6 +177,7 @@ The transition from `resolved` to `archived` happens when the deliverables are i
 | Document type | Relationship |
 |---|---|
 | **Spec** | A design study may produce a spec as a deliverable. The spec records the committed decision; the study records the analysis that led to it. The spec's Design Decisions section can reference the study for full rationale. |
+| **Arch-design** | A design study may produce an arch-design as a deliverable. The arch-design records the settled internal architecture; the study records the reasoning that produced it. For library and subsystem work, the arch-design subsumes the spec as the primary deliverable. See [Architecture Design Definition](arch-design_definition.md). |
 | **Doc-standard** | A design study may produce a doc-standard as a deliverable (e.g., a study of document organization produces a doc-standard for directory structure). |
 | **Implementation plan** | A plan implements a spec, not a study. The chain is: study → spec (or doc-standard) → plan. |
 | **Cookbook** | If a study surfaces practical findings along the way (tool quirks, workarounds), those belong in a cookbook entry, not in the study. |

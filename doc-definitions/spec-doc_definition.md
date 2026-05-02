@@ -17,6 +17,7 @@ A spec is NOT:
 
 - An implementation plan. A plan covers *how* to build it (task breakdown, file changes, sequencing). A spec covers *what* to build and *why*. See [Implementation Plan Reference](impl-plan_definition.md).
 - A design study. If alternatives were evaluated, the spec records the winner and the rationale, not the full analysis. The analysis belongs in a design study. See [Design Study Definition](design-study_definition.md).
+- An arch-design. An arch-design defines internal architecture: types, decomposition, and function contracts. For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters, use a spec. See [Architecture Design Definition](arch-design_definition.md).
 - A ticket or task tracker. It doesn't track who is doing what or when.
 
 ---

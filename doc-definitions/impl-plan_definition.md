@@ -17,6 +17,7 @@ A plan is NOT:
 
 - A spec. A spec covers *what* to build and *why*. A plan covers *how* to build it. Every plan should reference its companion spec (see [Specification Document Reference](spec-doc_definition.md)).
 - A design document. If you're still choosing between approaches, you need a spec (with design decisions) or a design study (see [Design Study Definition](design-study_definition.md)), not a plan.
+- An arch-design. An arch-design defines what to build (types, contracts, decomposition). A plan defines how to build it (task sequencing, file changes, status tracking). See [Architecture Design Definition](arch-design_definition.md).
 - A post-implementation reference. After the feature ships, the code is the source of truth. Archive the plan; don't maintain it.
 
 ---
@@ -45,6 +46,7 @@ status: draft | in-progress | complete | archived
 date: YYYY-MM-DD
 author: <git user name>
 spec: <path-to-companion-spec>
+arch-design: <path-to-companion-arch-design> (optional)
 ---
 ```
 
@@ -54,7 +56,8 @@ spec: <path-to-companion-spec>
 | `status` | `draft` while planning, `in-progress` during build, `complete` when all success criteria pass, `archived` post-ship. |
 | `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created, not copied from another document. Must match the date prefix in the filename. Immutable after creation. |
 | `author` | Who owns this plan. Use `git config user.name`. |
-| `spec` | Relative path to the companion spec document. Every new-feature plan must have one. |
+| `spec` | Relative path to the companion spec document. Every new-feature plan must have a companion spec, arch-design, or both. |
+| `arch-design` | Optional. Relative path to the companion arch-design document. Every new-feature plan must have a companion spec, arch-design, or both. |
 
 **File naming:** `YYYY-MM-DD_<feature-name>_plan.md`, using the same date and feature slug as the companion spec. E.g., `2026-04-07_build-log-notifier_plan.md`.
 
@@ -287,7 +290,7 @@ The transition from `complete` to `archived` should happen when the code is merg
 
 | Anti-pattern | Problem | Fix |
 |---|---|---|
-| **Plan without spec** (new features) | No agreement on *what* to build; the plan is implementing assumptions. | Write the spec first. The plan references it. |
+| **Plan without spec or arch-design** (new features) | No agreement on *what* to build; the plan is implementing assumptions. | Write a spec or arch-design first. The plan references it. |
 | **Plan as spec** | Mixes "what to build" with "how to build it." Objective, non-goals, and acceptance criteria are embedded in the plan. | Split into spec (what/why) and plan (how). |
 | **Pseudocode plan** | Solution breakdown uses invented syntax instead of real signatures and types. Implementer can't find the code. | Use real function names, real types, real file paths. |
 | **Missing cleanup** | Debug logs and temporary instrumentation ship to production. | Add a cleanup section. Don't mark `complete` until it's done. |
