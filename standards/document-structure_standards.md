@@ -80,7 +80,7 @@ Every document filename follows a single pattern:
 
 | Component | Required | Description | Example |
 |---|---|---|---|
-| `<date>` | Workflow only | Creation date in `YYYY-MM-DD` format. Present on workflow documents because they are point-in-time artifacts. Absent on doc-definitions, standards, and references, which are maintained indefinitely. | `2026-04-07` |
+| `<date>` | Most workflow | Creation date in `YYYY-MM-DD` format. Present on workflow documents that are point-in-time artifacts (briefs, specs, plans, design studies). Absent on doc-definitions, standards, references, and arch-designs (which are living documents maintained indefinitely). | `2026-04-07` |
 | `<topic>` | Yes | Kebab-case description of the document's subject. For cookbooks, this is the domain name. | `auth-token-refresh`, `omp-configuration`, `docker` |
 | `<doctype>` | Yes | Document type from the closed suffix inventory (section 2.3). | `spec`, `plan`, `definition`, `cookbook` |
 
@@ -191,6 +191,6 @@ When a document needs to mention an external resource (an upstream standard, a t
 | Feature specification | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
 | Implementation plan | `workflow/plans/` | `YYYY-MM-DD_<topic>_plan.md` |
 | Design study | `workflow/design-studies/` | `YYYY-MM-DD_<topic>_design-study.md` |
-| Architecture design | `workflow/arch-designs/` | `YYYY-MM-DD_<topic>_arch-design.md` |
+| Architecture design | `workflow/arch-designs/` | `<topic>_arch-design.md` |
 | Retired document | `archive/<original-path>/` | Same filename |
 | Component README | With the component (not in `docs/`) | `README.md` -- see [readme_definition.md](../doc-definitions/readme_definition.md) |

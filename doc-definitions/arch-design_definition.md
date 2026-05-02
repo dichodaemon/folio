@@ -42,11 +42,11 @@ design-study: <path-to-companion-design-study> (optional)
 |---|---|
 | `title` | Short, descriptive name. Matches the `#` heading. |
 | `status` | Lifecycle stage (see section 4). |
-| `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created, not copied from another document. Must match the date prefix in the filename. Immutable after creation. |
+| `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created. Immutable after creation. Retained as provenance metadata; does not appear in the filename. |
 | `author` | Who owns this document. Use `git config user.name`. |
 | `design-study` | Optional. Relative path to the companion design study that produced this architecture. Present when a study exists, absent otherwise. |
 
-**File naming:** `YYYY-MM-DD_<component-name>_arch-design.md`. E.g., `2026-05-01_behavior-planner_arch-design.md`.
+**File naming:** `<component-name>_arch-design.md`. No date prefix -- an arch-design is a living document, not a point-in-time artifact. E.g., `behavior-planner_arch-design.md`.
 
 ### 2.2. Objective (required)
 
@@ -66,7 +66,26 @@ Non-goals prevent scope creep during implementation, set expectations for review
 
 If there are genuinely no non-goals, state "None identified" rather than omitting the section.
 
-### 2.4. System Context (required)
+### 2.4. Terminology (when applicable)
+
+Definitions of domain terms that the architecture introduces or relies on. Include when the component uses terms that look like common English but carry specific technical meaning, or when the architecture introduces new vocabulary that must be understood before reading the Types or Contracts sections.
+
+Each entry:
+
+- The **term**.
+- Its **definition** -- precise enough to distinguish it from similar concepts.
+- Its **architectural mapping** -- which type, config field, or concept in the architecture this term corresponds to.
+
+```markdown
+| Term | Definition | Maps to |
+|---|---|---|
+| Job | A unit of work submitted by a client for deferred execution. Has a priority and a payload. | `JobDescriptor`, `SchedulerConfig.job_types` |
+| Worker | A processing slot that executes one job at a time. Workers are pooled and reusable. | `WorkerHandle`, `WorkerPool` |
+```
+
+Omit this section when the types are self-explanatory and no domain vocabulary needs to be established. If the implementer would need to read the companion design study to understand a term used in the Types or Contracts sections, that term belongs here.
+
+### 2.5. System Context (required)
 
 Where this component sits in the broader system. Covers:
 
@@ -76,20 +95,20 @@ Where this component sits in the broader system. Covers:
 
 This section is prose with optional Mermaid diagrams. It answers "where does this live and what does it talk to?" before the reader dives into type definitions.
 
-### 2.5. Design Decisions (when applicable)
+### 2.6. Design Decisions (when applicable)
 
 A summary table of key architectural decisions with rationale:
 
 ```markdown
 | Decision | Choice | Rationale |
 |---|---|---|
-| Coordinator ownership | Component state | Behavior planner is pure library; must not own GPU resources |
-| Selection input | Pre-aggregated ManeuverResult | Decouples selection from bucket-level pipeline details |
+| Thread pool ownership | Caller state | Scheduler is pure library; must not own thread lifecycle |
+| Priority resolution | Pre-computed score per job | Decouples scheduling policy from queue internals |
 ```
 
 Each row captures the winning choice and the key reason it won. Do NOT reproduce the full alternatives analysis -- that belongs in the companion design study. If no design study exists, the rationale cells should be self-contained.
 
-### 2.6. Architecture (required)
+### 2.7. Architecture (required)
 
 The structural decomposition of the component. This is the heart of the document.
 
@@ -107,11 +126,11 @@ The structural decomposition of the component. This is the heart of the document
 
 **What does NOT belong here:**
 
-- Individual type definitions (those go in section 2.7).
-- Individual function contracts (those go in section 2.8).
+- Individual type definitions (those go in section 2.8).
+- Individual function contracts (those go in section 2.9).
 - Alternatives or tradeoffs (those belong in the design study).
 
-### 2.7. Types (required)
+### 2.8. Types (required)
 
 Every struct, enum, variant, and type alias that constitutes the component's architecture. One subsection per type or per logical group of related types.
 
@@ -120,9 +139,11 @@ Each type definition includes:
 - The structural definition (fields, variants, defaults) in the implementation language.
 - Inline annotations explaining non-obvious fields or constraints.
 
+**Configuration types** should be included alongside runtime types. Configuration determines what the system does -- which modes are active, which features are enabled, what parameters govern behavior. Annotate configuration fields with whether they are set at initialization or variable at runtime, and note valid ranges or constraints on field combinations when they exist.
+
 **Structural, not compilable.** The definitions show the shape -- field names, types, relationships, invariants. The implementation may add fields, reorder, adjust qualifiers, or rename. The arch-design is authoritative for the architecture's structure and intent; the code is authoritative for exact syntax.
 
-### 2.8. Contracts (required)
+### 2.9. Contracts (required)
 
 Function signatures with behavioral contracts. One subsection per public function, callback, or interface method.
 
@@ -135,7 +156,47 @@ Each contract includes:
 
 Contracts define the promises the architecture makes to its callers and between its subsystems. They are the verifiable commitments of the design.
 
-### 2.9. Lifecycle (when applicable)
+#### System Invariants
+
+After the individual function contracts, state the cross-cutting invariants that hold across the entire component -- guarantees that span multiple functions and that no single contract captures alone.
+
+Each invariant is a statement about what is always true, never true, or true under stated conditions, referencing the types and functions involved. System invariants are distinct from acceptance criteria: invariants describe the architectural promise in terms of the design's own types and functions; acceptance criteria describe how to verify those promises through observable tests.
+
+```markdown
+**System Invariants:**
+
+- Every submitted job is either executed exactly once or moved to the dead-letter queue. No job is silently dropped.
+- JobState always advances, even when ScheduleJobs returns an error. The error carrier includes the updated state.
+- The only hard error is `kNoWorkersAvailable`. All other degraded conditions (unknown job type, worker timeout) are degraded success with partial results.
+```
+
+### 2.10. Test Architecture (when applicable)
+
+How the architecture enables testing. Include when the architecture introduces abstractions, interfaces, or boundaries motivated by testability, or when the intended testing pattern is not obvious from the types and contracts alone.
+
+**Content:**
+
+- **Test seams** -- which interfaces or abstract bases exist to decouple the component from external dependencies (databases, hardware, network, compute backends) during testing.
+- **Fakes** -- what fake or stub implementations the architecture provides, what they simulate, and what they omit.
+- **Testing pattern** -- how a typical unit test instantiates the component. What it provides, what it asserts on, what it does not need.
+
+```markdown
+### Test seams
+
+`ExecutorInterface` abstracts the thread pool executor. Production uses `ThreadPoolExecutor`; tests use `FakeExecutor`.
+
+### FakeExecutor
+
+Executes jobs synchronously and records the execution order. Does not manage threads. Allows tests to exercise `ScheduleJobs` logic (priority resolution, job assignment, state advancement) in isolation from concurrency.
+
+### Testing pattern
+
+Instantiate `ScheduleJobs` with a `FakeExecutor`, a `SchedulerConfig` defining job types and priorities, and a queue of `JobDescriptor` entries. Assert on the returned `ScheduleResult` (assigned jobs, deferred jobs, dead-lettered jobs) and the updated `JobState`.
+```
+
+This section explains why testability abstractions exist, preventing future maintainers from removing them as unnecessary indirection. Omit it when the component's public API is the natural test surface and no special test infrastructure is needed.
+
+### 2.11. Lifecycle (when applicable)
 
 How the component behaves over time. Include when the component has non-trivial initialization, per-cycle or per-request flow, state management, or shutdown behavior.
 
@@ -148,7 +209,7 @@ How the component behaves over time. Include when the component has non-trivial 
 
 Mermaid sequence diagrams for initialization and flowcharts for operational cycles are encouraged.
 
-### 2.10. Acceptance Criteria (required)
+### 2.12. Acceptance Criteria (required)
 
 A list of observable, testable conditions that define "done." Each criterion should be verifiable without reading the source code.
 
@@ -159,21 +220,34 @@ A list of observable, testable conditions that define "done." Each criterion sho
 - Do not include implementation-level criteria ("function X is called with parameter Y"). Test observable outcomes.
 - Include error cases and edge cases, not just the happy path.
 
-### 2.11. Code Pointers (required)
+### 2.13. Code Pointers (required)
 
-File layout and directory structure for the component. A table of files that will be created or modified, with their purpose.
+File layout and directory structure for the component.
+
+**Created or modified files.** A table of files that will be created or modified, with their purpose. When the build system enforces dependency boundaries (e.g., Bazel `cc_library` targets), include the build target to make library grouping explicit.
 
 ```markdown
-| File | Purpose |
-|---|---|
-| `fallback/behavior/plan_behavior.h` | PlanBehavior function signature |
-| `fallback/behavior/lane_topology.h` | LaneIndex, LaneInfo types |
-| `fallback/behavior/maneuvers/lane_follow.h` | MakeLaneFollowManeuver factory |
+| File | Build target | Purpose |
+|---|---|---|
+| `scheduler/core/schedule_jobs.h` | `//scheduler/core` | ScheduleJobs function signature |
+| `scheduler/core/job_types.h` | `//scheduler/core` | JobDescriptor, JobState types |
+| `scheduler/workers/thread_pool.h` | `//scheduler/workers` | ThreadPoolExecutor adapter |
 ```
 
-This section serves two audiences: human reviewers who need to understand the blast radius, and agents who need to know where to look when implementing.
+**Deletions.** Files and types that the new architecture renders obsolete. These are deleted as part of the implementation -- not "might eventually be removed" but "this architecture replaces these."
 
-### 2.12. Open Questions
+```markdown
+| File / Symbol | Reason |
+|---|---|
+| `scheduler/legacy/fifo_queue.h` | Replaced by priority-based `ScheduleJobs` |
+| `scheduler/legacy/simple_dispatcher.h` | Replaced by `ExecutorInterface` implementations |
+```
+
+Omit the deletions subsection for greenfield components with nothing to replace.
+
+This section serves two audiences: human reviewers who need to understand the blast radius, and agents who need to know where to create files and what to clean up.
+
+### 2.14. Open Questions
 
 Open questions may exist while the document is in `draft` status. Each question should state:
 
@@ -250,6 +324,7 @@ The acceptance criteria are the arch-design's binding commitment. If the impleme
 | **Stale document kept at `implemented`** | Code diverged but status was never updated. Readers trust a document that no longer reflects reality. | Transition to `stale`. Update or supersede. |
 | **Open questions in review** | Document is marked `review` but still has unresolved questions. | Resolve all questions and delete the section before advancing to `review`. |
 | **Abandoned arch-design** | Document stays in `draft` indefinitely, never reaching `review`. | The acceptance criteria section forces accountability. If the architecture can't be settled, the design study isn't done. |
+| **Orphaned old code** | New architecture is implemented but the code it replaces is not deleted. Two representations of the same concept coexist. | The Code Pointers deletions subsection names what the architecture replaces. Delete it in the same change. |
 
 ---
 
@@ -336,6 +411,11 @@ RateLimitDecision CheckRate(ClientID client);
 - **Postcondition on kAllow**: one token consumed from the client's bucket. Request may proceed.
 - **Postcondition on kReject**: no token consumed. Caller should return HTTP 429.
 - **Thread safety**: safe to call concurrently for different clients. Serialized per client.
+
+**System Invariants:**
+
+- A token bucket's `current_tokens` is always in `[0, capacity]`.
+- `CheckRate` is the only operation that consumes tokens. Refill is internal and triggered lazily on each `CheckRate` call.
 
 ## 7. Acceptance Criteria
 
