@@ -18,6 +18,8 @@ When a companion document (arch-design, spec, or design study) exists, this is t
 
 Create all issues upfront before writing any code. This gives the full dependency graph for parallelization and visibility. If an issue needs revision during implementation, update it or create a `discovered-from` child.
 
+**Batch creation.** When creating more than a handful of issues, use `bd create --graph <plan.json>` to create the full issue graph (issues + dependencies) in a single operation. Do not run individual `bd create` and `bd dep add` commands in a loop -- the per-call overhead compounds and the inline arguments bloat context. Write the graph to a JSON file first, then create in one call.
+
 ### 1.2. When Beads Replaces a Plan
 
 | Companion exists? | Task complexity | Use |
