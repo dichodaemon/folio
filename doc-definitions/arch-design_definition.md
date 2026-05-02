@@ -15,332 +15,62 @@ An arch-design exists to:
 
 An arch-design is NOT:
 
-- A design study. A design study explores alternatives and converges on a recommendation. An arch-design records the result of that convergence -- the settled design, without alternatives. See [Design Study Definition](design-study_definition.md).
-- A spec. A spec defines observable behavior and external contracts. An arch-design defines internal architecture: types, decomposition, and function contracts. For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters, use a spec instead. See [Specification Document Definition](spec-doc_definition.md).
-- An implementation plan. A plan sequences work into tasks with status tracking. An arch-design defines what to build; a plan defines how to build it in what order. See [Implementation Plan Definition](impl-plan_definition.md).
-- A code dump. Code in the document is structural -- it shows the shape, fields, relationships, and behavioral contracts of the design. It is not required to be compilable. The implementation is authoritative for exact syntax; the arch-design is authoritative for architectural intent.
+- A design study. See [Design Study Definition](design-study_definition.md).
+- A spec. See [Specification Document Definition](spec-doc_definition.md).
+- An implementation plan. See [Implementation Plan Definition](impl-plan_definition.md).
+- A code dump. Code in the document is structural -- it shows the shape, fields, relationships, and behavioral contracts of the design.
 
 ---
 
-## 2. Structure
+## 2. Principles
 
-Every arch-design follows this skeleton. Sections marked **(required)** must always be present. Sections marked **(when applicable)** are included when the component warrants them.
-
-### 2.1. Metadata (required)
-
-```markdown
----
-title: <Component Name>
-status: draft | review | approved | implemented | stale | superseded
-date: YYYY-MM-DD
-author: <git user name>
-design-study: <path-to-companion-design-study> (optional)
----
-```
-
-| Field | Purpose |
-|---|---|
-| `title` | Short, descriptive name. Matches the `#` heading. |
-| `status` | Lifecycle stage (see section 4). |
-| `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created. Immutable after creation. Retained as provenance metadata; does not appear in the filename. |
-| `author` | Who owns this document. Use `git config user.name`. |
-| `design-study` | Optional. Relative path to the companion design study that produced this architecture. Present when a study exists, absent otherwise. |
-
-**File naming:** `<component-name>_arch-design.md`. No date prefix -- an arch-design is a living document, not a point-in-time artifact. E.g., `behavior-planner_arch-design.md`.
-
-### 2.2. Objective (required)
-
-One to three sentences answering:
-
-- **What** component or subsystem is being designed?
-- **Why** -- what problem does it solve, what capability does it enable?
-- **For whom** -- who uses this component (callers, consumers, downstream systems)?
-
-Lead with the problem, not the solution.
-
-### 2.3. Non-Goals (required)
-
-Explicit list of things this arch-design does NOT address. Each item should be something a reasonable reader might expect to be in scope.
-
-Non-goals prevent scope creep during implementation, set expectations for reviewers, and signal to agents what NOT to build.
-
-If there are genuinely no non-goals, state "None identified" rather than omitting the section.
-
-### 2.4. Terminology (when applicable)
-
-Definitions of domain terms that the architecture introduces or relies on. Include when the component uses terms that look like common English but carry specific technical meaning, or when the architecture introduces new vocabulary that must be understood before reading the Types or Contracts sections.
-
-Each entry:
-
-- The **term**.
-- Its **definition** -- precise enough to distinguish it from similar concepts.
-- Its **architectural mapping** -- which type, config field, or concept in the architecture this term corresponds to.
-
-```markdown
-| Term | Definition | Maps to |
-|---|---|---|
-| Job | A unit of work submitted by a client for deferred execution. Has a priority and a payload. | `JobDescriptor`, `SchedulerConfig.job_types` |
-| Worker | A processing slot that executes one job at a time. Workers are pooled and reusable. | `WorkerHandle`, `WorkerPool` |
-```
-
-Omit this section when the types are self-explanatory and no domain vocabulary needs to be established. If the implementer would need to read the companion design study to understand a term used in the Types or Contracts sections, that term belongs here.
-
-### 2.5. System Context (required)
-
-Where this component sits in the broader system. Covers:
-
-- Which layers or subsystems it interacts with.
-- Key boundaries and interface types between layers.
-- Internal subsystems and their responsibilities.
-
-This section is prose with optional Mermaid diagrams. It answers "where does this live and what does it talk to?" before the reader dives into type definitions.
-
-### 2.6. Design Decisions (when applicable)
-
-A summary table of key architectural decisions with rationale:
-
-```markdown
-| Decision | Choice | Rationale |
-|---|---|---|
-| Thread pool ownership | Caller state | Scheduler is pure library; must not own thread lifecycle |
-| Priority resolution | Pre-computed score per job | Decouples scheduling policy from queue internals |
-```
-
-Each row captures the winning choice and the key reason it won. Do NOT reproduce the full alternatives analysis -- that belongs in the companion design study. If no design study exists, the rationale cells should be self-contained.
-
-### 2.7. Architecture (required)
-
-The structural decomposition of the component. This is the heart of the document.
-
-**Content:**
-
-- Subsystem or module decomposition -- what the parts are and how they relate.
-- Data flow -- what goes in, what comes out, what is stored, what flows between subsystems.
-- Diagrams (Mermaid) for lifecycle, initialization sequences, per-cycle flow, or other temporal structure.
-
-**What belongs here:**
-
-- The shape of the system: which modules exist, which depend on which, how data flows between them.
-- Lifecycle descriptions: initialization sequence, per-cycle flow, shutdown, error recovery.
-- Diagrams that clarify structure or temporal ordering.
-
-**What does NOT belong here:**
-
-- Individual type definitions (those go in section 2.8).
-- Individual function contracts (those go in section 2.9).
-- Alternatives or tradeoffs (those belong in the design study).
-
-### 2.8. Types (required)
-
-Every struct, enum, variant, and type alias that constitutes the component's architecture. One subsection per type or per logical group of related types.
-
-Each type definition includes:
-
-- The structural definition (fields, variants, defaults) in the implementation language.
-- Inline annotations explaining non-obvious fields or constraints.
-
-**Configuration types** should be included alongside runtime types. Configuration determines what the system does -- which modes are active, which features are enabled, what parameters govern behavior. Annotate configuration fields with whether they are set at initialization or variable at runtime, and note valid ranges or constraints on field combinations when they exist.
-
-**Structural, not compilable.** The definitions show the shape -- field names, types, relationships, invariants. The implementation may add fields, reorder, adjust qualifiers, or rename. The arch-design is authoritative for the architecture's structure and intent; the code is authoritative for exact syntax.
-
-### 2.9. Contracts (required)
-
-Function signatures with behavioral contracts. One subsection per public function, callback, or interface method.
-
-Each contract includes:
-
-- The function signature.
-- **Preconditions** -- what must be true before the call.
-- **Postconditions** -- what is guaranteed after the call returns.
-- **Error semantics** -- what the function returns or does on failure.
-
-Contracts define the promises the architecture makes to its callers and between its subsystems. They are the verifiable commitments of the design.
-
-#### System Invariants
-
-After the individual function contracts, state the cross-cutting invariants that hold across the entire component -- guarantees that span multiple functions and that no single contract captures alone.
-
-Each invariant is a statement about what is always true, never true, or true under stated conditions, referencing the types and functions involved. System invariants are distinct from acceptance criteria: invariants describe the architectural promise in terms of the design's own types and functions; acceptance criteria describe how to verify those promises through observable tests.
-
-```markdown
-**System Invariants:**
-
-- Every submitted job is either executed exactly once or moved to the dead-letter queue. No job is silently dropped.
-- JobState always advances, even when ScheduleJobs returns an error. The error carrier includes the updated state.
-- The only hard error is `kNoWorkersAvailable`. All other degraded conditions (unknown job type, worker timeout) are degraded success with partial results.
-```
-
-### 2.10. Test Architecture (when applicable)
-
-How the architecture enables testing. Include when the architecture introduces abstractions, interfaces, or boundaries motivated by testability, or when the intended testing pattern is not obvious from the types and contracts alone.
-
-**Content:**
-
-- **Test seams** -- which interfaces or abstract bases exist to decouple the component from external dependencies (databases, hardware, network, compute backends) during testing.
-- **Fakes** -- what fake or stub implementations the architecture provides, what they simulate, and what they omit.
-- **Testing pattern** -- how a typical unit test instantiates the component. What it provides, what it asserts on, what it does not need.
-
-```markdown
-### Test seams
-
-`ExecutorInterface` abstracts the thread pool executor. Production uses `ThreadPoolExecutor`; tests use `FakeExecutor`.
-
-### FakeExecutor
-
-Executes jobs synchronously and records the execution order. Does not manage threads. Allows tests to exercise `ScheduleJobs` logic (priority resolution, job assignment, state advancement) in isolation from concurrency.
-
-### Testing pattern
-
-Instantiate `ScheduleJobs` with a `FakeExecutor`, a `SchedulerConfig` defining job types and priorities, and a queue of `JobDescriptor` entries. Assert on the returned `ScheduleResult` (assigned jobs, deferred jobs, dead-lettered jobs) and the updated `JobState`.
-```
-
-This section explains why testability abstractions exist, preventing future maintainers from removing them as unnecessary indirection. Omit it when the component's public API is the natural test surface and no special test infrastructure is needed.
-
-### 2.11. Lifecycle (when applicable)
-
-How the component behaves over time. Include when the component has non-trivial initialization, per-cycle or per-request flow, state management, or shutdown behavior.
-
-**Content:**
-
-- Initialization sequence (what is created, in what order, what depends on what).
-- Per-cycle or per-request flow (the main operational loop).
-- State transitions and their triggers.
-- Shutdown or cleanup behavior.
-
-Mermaid sequence diagrams for initialization and flowcharts for operational cycles are encouraged.
-
-### 2.12. Acceptance Criteria (required)
-
-A list of observable, testable conditions that define "done." Each criterion should be verifiable without reading the source code.
-
-**Guidelines:**
-
-- Write criteria as Given/When/Then or as checkable assertions.
-- Each criterion maps to at least one test (unit, integration, or manual verification).
-- Do not include implementation-level criteria ("function X is called with parameter Y"). Test observable outcomes.
-- Include error cases and edge cases, not just the happy path.
-
-### 2.13. Code Pointers (required)
-
-File layout and directory structure for the component.
-
-**Created or modified files.** A table of files that will be created or modified, with their purpose. When the build system enforces dependency boundaries (e.g., Bazel `cc_library` targets), include the build target to make library grouping explicit.
-
-```markdown
-| File | Build target | Purpose |
-|---|---|---|
-| `scheduler/core/schedule_jobs.h` | `//scheduler/core` | ScheduleJobs function signature |
-| `scheduler/core/job_types.h` | `//scheduler/core` | JobDescriptor, JobState types |
-| `scheduler/workers/thread_pool.h` | `//scheduler/workers` | ThreadPoolExecutor adapter |
-```
-
-**Deletions.** Files and types that the new architecture renders obsolete. These are deleted as part of the implementation -- not "might eventually be removed" but "this architecture replaces these."
-
-```markdown
-| File / Symbol | Reason |
-|---|---|
-| `scheduler/legacy/fifo_queue.h` | Replaced by priority-based `ScheduleJobs` |
-| `scheduler/legacy/simple_dispatcher.h` | Replaced by `ExecutorInterface` implementations |
-```
-
-Omit the deletions subsection for greenfield components with nothing to replace.
-
-This section serves two audiences: human reviewers who need to understand the blast radius, and agents who need to know where to create files and what to clean up.
-
-### 2.14. Open Questions
-
-Open questions may exist while the document is in `draft` status. Each question should state:
-
-- The question itself.
-- Why it matters (what decision it blocks or what type/contract it affects).
-- Candidate answers, if any.
-
-**This section must not exist when the document reaches `review` or any later status.** When a question is resolved, incorporate the answer into the relevant section (Types, Contracts, Architecture, Design Decisions) and delete the question. When all questions are resolved, delete this section entirely. A document in `review` with an Open Questions section is a contradiction.
-
----
-
-## 3. Principles
-
-### 3.1. Architecture Over Implementation
+### 2.1. Architecture Over Implementation
 
 The arch-design records the settled architecture: the types, decomposition, and contracts that define the system's structure. It does not record implementation details that don't affect the architecture (loop structure, variable names, optimization choices). If it compiles, it's probably too detailed. If it doesn't communicate the shape of the system, it's too abstract.
 
-### 3.2. Settled, Not Explored
+### 2.2. Settled, Not Explored
 
 An arch-design states decisions. It does not explore alternatives, weigh tradeoffs, or preserve rejected options. That work belongs in the companion design study. Every statement in the arch-design should be a commitment, not a recommendation.
 
 If you find yourself writing "Option A vs Option B," you need a design study, not an arch-design.
 
-### 3.3. Structural Code
+### 2.3. Structural Code
 
 Code in the Types and Contracts sections shows the shape of the design: field names, types, relationships, signatures, error returns. It is structural, not compilable. The implementation may diverge in syntax while preserving the architecture.
 
 This means: a field reordering, a `const` qualifier change, or a renamed parameter does not make the document stale. A new callback, a removed type, or a changed error path does.
 
-### 3.4. Living Document
+### 2.4. Living Document
 
 The arch-design is updated when the implementation reveals that the architecture needs to change. It remains accurate after shipping and serves as the architectural reference for future maintainers. Updates should be rare and deliberate -- if the architecture changes fundamentally, that's a new design study, not an update to this document.
 
-### 3.5. Self-Contained for Implementation
+### 2.5. Self-Contained for Implementation
 
 An implementer should be able to build the component from the arch-design and the plan alone. The design study provides rationale for reviewers and future maintainers but is not required for implementation. If the implementer needs to read the design study to understand what to build, the arch-design is incomplete.
 
-### 3.6. Acceptance Criteria Are the Contract
+### 2.6. Acceptance Criteria Are the Contract
 
 The acceptance criteria are the arch-design's binding commitment. If the implementation satisfies all acceptance criteria, the arch-design is fulfilled. If a behavior matters, it must appear in the acceptance criteria.
 
 ---
 
-## 4. Lifecycle
+## 3. Document Map
 
-| Status | Meaning | What changes |
+An arch-design groups its sections into five layers. Each layer builds on the previous:
+
+| Layer | Sections | Purpose |
 |---|---|---|
-| `draft` | Actively working through the design. Types and contracts may change. Open questions may exist. | Everything. |
-| `review` | Architecture is complete. No open questions. Ready for feedback. | Types and contracts may be refined based on feedback. Structure is stable. |
-| `approved` | Committed. Implementation may proceed. | Author (with reviewer agreement for material changes to types, contracts, or acceptance criteria). |
-| `implemented` | Code matches the document. Arch-design is the living reference. | Anyone (corrections, clarifications, and architecture updates that reflect code changes). |
-| `stale` | Code has diverged from the document. Types, contracts, or structural decisions no longer match the implementation. | Must be updated to `implemented` or `superseded`. A stale arch-design is a call to action. |
-| `superseded` | Replaced by a newer arch-design. Link to the replacement in the metadata. | Nothing. |
+| **Framing** | Objective, Non-Goals, Terminology | What this component is, what it is not, and the vocabulary it uses. |
+| **Architecture** | System Context, Architecture, Component Lifecycle | Where it sits, how it is decomposed, and how it behaves over time. |
+| **Detail** | Types, Contracts, System Invariants | The structural definitions, behavioral promises, and cross-cutting guarantees. |
+| **Verification** | Test Architecture, Acceptance Criteria | How to test and what done looks like. |
+| **Maintenance** | Code Pointers, Open Questions | Where to find the code and what remains unresolved (draft only). |
 
-**Key transitions:**
-
-- `draft` to `review`: all open questions resolved, Open Questions section deleted.
-- `review` to `approved`: reviewer sign-off. Material changes after approval require re-review.
-- `approved` to `implemented`: code matches the architecture. Acceptance criteria pass.
-- `implemented` to `stale`: detected divergence between code and document (manual or automated).
-- `stale` to `implemented`: document updated to match code.
-- Any status to `superseded`: a new arch-design replaces this one.
+The Minimal Example (section 4) shows a complete arch-design following this structure. The remainder of this document specifies each section in detail.
 
 ---
 
-## 5. Anti-Patterns
-
-| Anti-pattern | Problem | Fix |
-|---|---|---|
-| **Arch-design as design study** | Explores alternatives, weighs tradeoffs, preserves rejected options. | Move the analysis to a design study. The arch-design records only the settled result. |
-| **Compilable code** | Types section contains copy-pasteable code that must exactly match the implementation. | Code is structural. Show the shape, not the syntax. The implementation is authoritative for exact code. |
-| **Arch-design as plan** | Includes task breakdowns, sequencing, or status tracking. | Split into arch-design (what to build) and plan (how to build it). |
-| **Missing contracts** | Types are defined but function signatures and behavioral promises are absent. | The contracts section is required. Every public function and callback needs preconditions, postconditions, and error semantics. |
-| **Stale document kept at `implemented`** | Code diverged but status was never updated. Readers trust a document that no longer reflects reality. | Transition to `stale`. Update or supersede. |
-| **Open questions in review** | Document is marked `review` but still has unresolved questions. | Resolve all questions and delete the section before advancing to `review`. |
-| **Abandoned arch-design** | Document stays in `draft` indefinitely, never reaching `review`. | The acceptance criteria section forces accountability. If the architecture can't be settled, the design study isn't done. |
-| **Orphaned old code** | New architecture is implemented but the code it replaces is not deleted. Two representations of the same concept coexist. | The Code Pointers deletions subsection names what the architecture replaces. Delete it in the same change. |
-
----
-
-## 6. Relationship to Other Document Types
-
-| Document type | Relationship |
-|---|---|
-| **Design study** | An arch-design may be produced from a design study. The study records the reasoning; the arch-design records the settled result. The `design-study` metadata field links them. When no study exists, the Design Decisions section provides inline rationale. |
-| **Spec** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters (CLI tools, API endpoints, configuration changes), use a spec instead. Both document types can coexist for complex features with distinct external and internal concerns. |
-| **Implementation plan** (deprecated) | Implementation plans are deprecated. When an arch-design exists, beads issue tracking replaces the plan for sequencing and task management. See [Beads Standards](../standards/beads_standards.md). |
-| **Brief** | A brief may identify that an arch-design is needed. The brief frames the work; the arch-design (possibly after a design study) settles the architecture. |
-| **Cookbook** | If an arch-design surfaces practical implementation findings (tool quirks, workarounds, patterns), those belong in a cookbook entry, not in the arch-design. |
-
----
-
-## 7. Minimal Example
+## 4. Minimal Example
 
 ````markdown
 ---
@@ -412,12 +142,12 @@ RateLimitDecision CheckRate(ClientID client);
 - **Postcondition on kReject**: no token consumed. Caller should return HTTP 429.
 - **Thread safety**: safe to call concurrently for different clients. Serialized per client.
 
-**System Invariants:**
+## 7. System Invariants
 
 - A token bucket's `current_tokens` is always in `[0, capacity]`.
 - `CheckRate` is the only operation that consumes tokens. Refill is internal and triggered lazily on each `CheckRate` call.
 
-## 7. Acceptance Criteria
+## 8. Acceptance Criteria
 
 - [ ] Given a client with available tokens, `CheckRate` returns `kAllow` and decrements the token count.
 - [ ] Given a client with zero tokens, `CheckRate` returns `kReject` without modifying the bucket.
@@ -425,7 +155,7 @@ RateLimitDecision CheckRate(ClientID client);
 - [ ] Given two concurrent requests for different clients, neither blocks the other.
 - [ ] Given no prior requests from a client, `CheckRate` creates a bucket with `capacity` tokens.
 
-## 8. Code Pointers
+## 9. Code Pointers
 
 | File | Purpose |
 |---|---|
@@ -433,6 +163,306 @@ RateLimitDecision CheckRate(ClientID client);
 | `src/rate_limiter/rate_limiter.h` | RateLimiter class, CheckRate |
 | `src/middleware/rate_limit_handler.cc` | Middleware integration |
 ````
+
+---
+
+## 5. Structure
+
+Every arch-design follows this skeleton. Sections marked **(required)** must always be present. Sections marked **(when applicable)** are included when the component warrants them.
+
+### 5.1. Metadata (required)
+
+```markdown
+---
+title: <Component Name>
+status: draft | review | approved | implemented | stale | superseded
+date: YYYY-MM-DD
+author: <git user name>
+design-study: <path-to-companion-design-study> (optional)
+---
+```
+
+| Field | Purpose |
+|---|---|
+| `title` | Short, descriptive name. Matches the `#` heading. |
+| `status` | Document Lifecycle stage (see section 6). |
+| `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created. Immutable after creation. Retained as provenance metadata; does not appear in the filename. |
+| `author` | Who owns this document. Use `git config user.name`. |
+| `design-study` | Optional. Relative path to the companion design study that produced this architecture. Present when a study exists, absent otherwise. |
+
+**File naming:** `<component-name>_arch-design.md`. No date prefix -- an arch-design is a living document, not a point-in-time artifact. E.g., `behavior-planner_arch-design.md`.
+
+**Framing**
+
+### 5.2. Objective (required)
+
+One to three sentences answering:
+
+- **What** component or subsystem is being designed?
+- **Why** -- what problem does it solve, what capability does it enable?
+- **For whom** -- who uses this component (callers, consumers, downstream systems)?
+
+Lead with the problem, not the solution.
+
+### 5.3. Non-Goals (required)
+
+Explicit list of things this arch-design does NOT address. Each item should be something a reasonable reader might expect to be in scope.
+
+Non-goals prevent scope creep during implementation, set expectations for reviewers, and signal to agents what NOT to build.
+
+If there are genuinely no non-goals, state "None identified" rather than omitting the section.
+
+### 5.4. Terminology (when applicable)
+
+Definitions of domain terms that the architecture introduces or relies on. Include when the component uses terms that look like common English but carry specific technical meaning, or when the architecture introduces new vocabulary that must be understood before reading the Types or Contracts sections.
+
+Each entry:
+
+- The **term**.
+- Its **definition** -- precise enough to distinguish it from similar concepts.
+- Its **architectural mapping** -- which type, config field, or concept in the architecture this term corresponds to.
+
+```markdown
+| Term | Definition | Maps to |
+|---|---|---|
+| Job | A unit of work submitted by a client for deferred execution. Has a priority and a payload. | `JobDescriptor`, `SchedulerConfig.job_types` |
+| Worker | A processing slot that executes one job at a time. Workers are pooled and reusable. | `WorkerHandle`, `WorkerPool` |
+```
+
+Omit this section when the types are self-explanatory and no domain vocabulary needs to be established. If the implementer would need to read the companion design study to understand a term used in the Types or Contracts sections, that term belongs here.
+
+**Architecture**
+
+### 5.5. System Context (required)
+
+Where this component sits in the broader system. Covers:
+
+- Which layers or subsystems it interacts with.
+- Key boundaries and interface types between layers.
+- Internal subsystems and their responsibilities.
+
+This section is prose with optional Mermaid diagrams. It answers "where does this live and what does it talk to?" before the reader dives into type definitions.
+
+### 5.6. Architecture (required)
+
+The structural decomposition of the component. This is the heart of the document.
+
+**Content:**
+
+- Subsystem or module decomposition -- what the parts are and how they relate.
+- Data flow -- what goes in, what comes out, what is stored, what flows between subsystems.
+- Diagrams (Mermaid) for structure or dependency relationships.
+
+**What belongs here:**
+
+- The shape of the system: which modules exist, which depend on which, how data flows between them.
+- Diagrams that clarify structure or dependency relationships.
+
+Temporal behavior (initialization, per-cycle flow, state transitions) belongs in Component Lifecycle (section 5.7), not here.
+
+**What does NOT belong here:**
+
+- Individual type definitions (those go in section 5.8).
+- Individual function contracts (those go in section 5.9).
+- Alternatives or tradeoffs (those belong in the design study).
+- Temporal behavior: initialization sequences, per-cycle flow, state transitions (those go in section 5.7).
+
+**Anti-pattern: exploring alternatives or preserving tradeoffs here. That belongs in the design study.**
+
+#### Design Decisions (when applicable)
+
+A summary table of key architectural decisions with rationale:
+
+```markdown
+| Decision | Choice | Rationale |
+|---|---|---|
+| Thread pool ownership | Caller state | Scheduler is pure library; must not own thread lifecycle |
+| Priority resolution | Pre-computed score per job | Decouples scheduling policy from queue internals |
+```
+
+Each row captures the winning choice and the key reason it won. Do NOT reproduce the full alternatives analysis -- that belongs in the companion design study. If no design study exists, the rationale cells should be self-contained.
+
+### 5.7. Component Lifecycle (when applicable)
+
+How the component behaves over time. Include when the component has non-trivial initialization, per-cycle or per-request flow, state management, or shutdown behavior.
+
+**Content:**
+
+- Initialization sequence (what is created, in what order, what depends on what).
+- Per-cycle or per-request flow (the main operational loop).
+- State transitions and their triggers.
+- Shutdown or cleanup behavior.
+
+Mermaid sequence diagrams for initialization and flowcharts for operational cycles are encouraged.
+
+**Detail**
+
+### 5.8. Types (required)
+
+Every struct, enum, variant, and type alias that constitutes the component's architecture. One subsection per type or per logical group of related types.
+
+Each type definition includes:
+
+- The structural definition (fields, variants, defaults) in the implementation language.
+- Inline annotations explaining non-obvious fields or constraints.
+
+**Configuration types** should be included alongside runtime types. Configuration determines what the system does -- which modes are active, which features are enabled, what parameters govern behavior. Annotate configuration fields with whether they are set at initialization or variable at runtime, and note valid ranges or constraints on field combinations when they exist.
+
+**Structural, not compilable.** The definitions show the shape -- field names, types, relationships, invariants. The implementation may add fields, reorder, adjust qualifiers, or rename. The arch-design is authoritative for the architecture's structure and intent; the code is authoritative for exact syntax.
+
+**Anti-pattern: compilable code. Show the shape, not the syntax. The implementation is authoritative for exact code.**
+
+### 5.9. Contracts (required)
+
+Function signatures with behavioral contracts. One subsection per public function, callback, or interface method.
+
+Each contract includes:
+
+- The function signature.
+- **Preconditions** -- what must be true before the call.
+- **Postconditions** -- what is guaranteed after the call returns.
+- **Error semantics** -- what the function returns or does on failure.
+
+Contracts define the promises the architecture makes to its callers and between its subsystems. They are the verifiable commitments of the design.
+
+**Anti-pattern: defining types without behavioral contracts. Every public function and callback needs preconditions, postconditions, and error semantics.**
+
+### 5.10. System Invariants (required)
+
+Cross-cutting guarantees that hold across the entire component -- promises that span multiple types and functions and that no single contract captures alone.
+
+Each invariant is a statement about what is always true, never true, or true under stated conditions, referencing the types and functions involved. System invariants are distinct from acceptance criteria: invariants describe the architectural promise in terms of the design's own types and functions; acceptance criteria describe how to verify those promises through observable tests.
+
+```markdown
+**System Invariants:**
+
+- Every submitted job is either executed exactly once or moved to the dead-letter queue. No job is silently dropped.
+- JobState always advances, even when ScheduleJobs returns an error. The error carrier includes the updated state.
+- The only hard error is `kNoWorkersAvailable`. All other degraded conditions (unknown job type, worker timeout) are degraded success with partial results.
+```
+
+**Verification**
+
+### 5.11. Test Architecture (when applicable)
+
+How the architecture enables testing. Include when the architecture introduces abstractions, interfaces, or boundaries motivated by testability, or when the intended testing pattern is not obvious from the types and contracts alone.
+
+**Content:**
+
+- **Test seams** -- which interfaces or abstract bases exist to decouple the component from external dependencies (databases, hardware, network, compute backends) during testing.
+- **Fakes** -- what fake or stub implementations the architecture provides, what they simulate, and what they omit.
+- **Testing pattern** -- how a typical unit test instantiates the component. What it provides, what it asserts on, what it does not need.
+
+```markdown
+### Test seams
+
+`ExecutorInterface` abstracts the thread pool executor. Production uses `ThreadPoolExecutor`; tests use `FakeExecutor`.
+
+### FakeExecutor
+
+Executes jobs synchronously and records the execution order. Does not manage threads. Allows tests to exercise `ScheduleJobs` logic (priority resolution, job assignment, state advancement) in isolation from concurrency.
+
+### Testing pattern
+
+Instantiate `ScheduleJobs` with a `FakeExecutor`, a `SchedulerConfig` defining job types and priorities, and a queue of `JobDescriptor` entries. Assert on the returned `ScheduleResult` (assigned jobs, deferred jobs, dead-lettered jobs) and the updated `JobState`.
+```
+
+This section explains why testability abstractions exist, preventing future maintainers from removing them as unnecessary indirection. Omit it when the component's public API is the natural test surface and no special test infrastructure is needed.
+
+### 5.12. Acceptance Criteria (required)
+
+A list of observable, testable conditions that define "done." Each criterion should be verifiable without reading the source code.
+
+**Guidelines:**
+
+- Write criteria as Given/When/Then or as checkable assertions.
+- Each criterion maps to at least one test (unit, integration, or manual verification).
+- Do not include implementation-level criteria ("function X is called with parameter Y"). Test observable outcomes.
+- Include error cases and edge cases, not just the happy path.
+
+**Anti-pattern: implementation-level criteria ('function X is called with parameter Y'). Test observable outcomes.**
+
+**Maintenance**
+
+### 5.13. Code Pointers (required)
+
+File layout and directory structure for the component.
+
+**Created or modified files.** A table of files that will be created or modified, with their purpose. When the build system enforces dependency boundaries (e.g., Bazel `cc_library` targets), include the build target to make library grouping explicit.
+
+```markdown
+| File | Build target | Purpose |
+|---|---|---|
+| `scheduler/core/schedule_jobs.h` | `//scheduler/core` | ScheduleJobs function signature |
+| `scheduler/core/job_types.h` | `//scheduler/core` | JobDescriptor, JobState types |
+| `scheduler/workers/thread_pool.h` | `//scheduler/workers` | ThreadPoolExecutor adapter |
+```
+
+**Deletions.** Files and types that the new architecture renders obsolete. These are deleted as part of the implementation -- not "might eventually be removed" but "this architecture replaces these."
+
+```markdown
+| File / Symbol | Reason |
+|---|---|
+| `scheduler/legacy/fifo_queue.h` | Replaced by priority-based `ScheduleJobs` |
+| `scheduler/legacy/simple_dispatcher.h` | Replaced by `ExecutorInterface` implementations |
+```
+
+Omit the deletions subsection for greenfield components with nothing to replace.
+
+This section serves two audiences: human reviewers who need to understand the blast radius, and agents who need to know where to create files and what to clean up.
+
+### 5.14. Open Questions
+
+Open questions may exist while the document is in `draft` status. Each question should state:
+
+- The question itself.
+- Why it matters (what decision it blocks or what type/contract it affects).
+- Candidate answers, if any.
+
+**This section must not exist when the document reaches `review` or any later status.** When a question is resolved, incorporate the answer into the relevant section (Types, Contracts, Architecture, Design Decisions) and delete the question. When all questions are resolved, delete this section entirely. A document in `review` with an Open Questions section is a contradiction.
+
+**Anti-pattern: open questions surviving past `draft` status. Resolve and delete before advancing to `review`.**
+
+**General anti-patterns:**
+
+- **Arch-design as plan**: includes task breakdowns, sequencing, or status tracking. Split into arch-design (what to build) and plan (how to build it).
+- **Stale document kept at `implemented`**: code diverged but status was never updated. Transition to `stale`. Update or supersede.
+- **Abandoned arch-design**: document stays in `draft` indefinitely. The acceptance criteria section forces accountability.
+- **Orphaned old code**: new architecture implemented but old code not deleted. The Code Pointers deletions subsection names what the architecture replaces. Delete it in the same change.
+
+---
+
+## 6. Document Lifecycle
+
+| Status | Meaning | What changes |
+|---|---|---|
+| `draft` | Actively working through the design. Types and contracts may change. Open questions may exist. | Everything. |
+| `review` | Architecture is complete. No open questions. Ready for feedback. | Types and contracts may be refined based on feedback. Structure is stable. |
+| `approved` | Committed. Implementation may proceed. | Author (with reviewer agreement for material changes to types, contracts, or acceptance criteria). |
+| `implemented` | Code matches the document. Arch-design is the living reference. | Anyone (corrections, clarifications, and architecture updates that reflect code changes). |
+| `stale` | Code has diverged from the document. Types, contracts, or structural decisions no longer match the implementation. | Must be updated to `implemented` or `superseded`. A stale arch-design is a call to action. |
+| `superseded` | Replaced by a newer arch-design. Link to the replacement in the metadata. | Nothing. |
+
+**Key transitions:**
+
+- `draft` to `review`: all open questions resolved, Open Questions section deleted.
+- `review` to `approved`: reviewer sign-off. Material changes after approval require re-review.
+- `approved` to `implemented`: code matches the architecture. Acceptance criteria pass.
+- `implemented` to `stale`: detected divergence between code and document (manual or automated).
+- `stale` to `implemented`: document updated to match code.
+- Any status to `superseded`: a new arch-design replaces this one.
+
+---
+
+## 7. Relationship to Other Document Types
+
+| Document type | Relationship |
+|---|---|
+| **Design study** | An arch-design may be produced from a design study. The study records the reasoning; the arch-design records the settled result. The `design-study` metadata field links them. When no study exists, the Design Decisions section provides inline rationale. |
+| **Spec** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters (CLI tools, API endpoints, configuration changes), use a spec instead. Both document types can coexist for complex features with distinct external and internal concerns. |
+| **Implementation plan** (deprecated) | Implementation plans are deprecated. When an arch-design exists, beads issue tracking replaces the plan for sequencing and task management. See [Beads Standards](../standards/beads_standards.md). |
+| **Brief** | A brief may identify that an arch-design is needed. The brief frames the work; the arch-design (possibly after a design study) settles the architecture. |
+| **Cookbook** | If an arch-design surfaces practical implementation findings (tool quirks, workarounds, patterns), those belong in a cookbook entry, not in the arch-design. |
 
 ---
 
