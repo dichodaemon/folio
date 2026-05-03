@@ -284,35 +284,85 @@ Skills are passive knowledge packs -- named directories containing a `SKILL.md` 
 
 ### 2.6. Context Files
 
-| Path | Scope | Tools |
-|---|---|---|
-| `<cwd>/.claude/CLAUDE.md` | Project | OMP, Claude Code |
-| `<cwd>/<dir>/CLAUDE.md` | Directory | OMP, Claude Code |
-| `<cwd>/<dir>/AGENTS.md` | Directory | OMP, Claude Code, Codex CLI |
-
-Context files are persistent instruction files merged into the system prompt based on directory depth. They define project-wide or directory-scoped constraints, conventions, and architectural context.
+Context files are persistent instruction files merged into the system prompt. They define project-wide or directory-scoped constraints, conventions, and architectural context.
 
 **When to use:** You have project-wide or directory-scoped constraints that should always be in the agent's context -- build system instructions, repo structure, dev environment, coding conventions.
 
-**Loading behavior:**
+#### Project-level context files
 
-- `CLAUDE.md` at the project root is always loaded.
-- `CLAUDE.md` / `AGENTS.md` in subdirectories are loaded when the agent works on files in or under that directory.
-- Deeper files override higher ones on conflict.
-- The `@` directive in `CLAUDE.md` includes other files by relative path (e.g., `@.claude/maia-learnings.md`).
-- Discovery walks up to 20 ancestor directories from `cwd`.
+| Path | Provider | Priority | Scope | Tools |
+|---|---|---|---|---|
+| `<cwd>/.omp/AGENTS.md` | builtin | 100 | Project | OMP |
+| `<ancestor>/.omp/AGENTS.md` | builtin | 100 | Project (walk-up) | OMP |
+| `<cwd>/.claude/CLAUDE.md` | claude | 80 | Project | OMP, Claude Code |
+| `<ancestor>/.claude/CLAUDE.md` | claude | 80 | Project (walk-up) | OMP, Claude Code |
+| `<ancestor>/AGENTS.md` | agents-md | 10 | Project (walk-up) | OMP, Claude Code, Codex CLI |
 
-**Constraints:**
+#### Discovery mechanics
+
+Three independent providers discover context files. All run in parallel; results are merged and deduplicated by content.
+
+**Builtin/OMP provider (priority 100):** Walks up from `cwd` through ancestor directories to the git repo root (or `$HOME` if not in a git repo). At each ancestor, checks for a non-empty `.omp/` directory. Stops at the **first** `.omp/` directory found. Reads `.omp/AGENTS.md` from that directory if it exists. A closer `.omp/` directory shadows a farther one -- if `<cwd>/sub/.omp/` exists, `<cwd>/.omp/AGENTS.md` is not discovered by this provider.
+
+**Claude provider (priority 80):** Same walk-up pattern for `.claude/` directories. Reads `CLAUDE.md` (and other Claude Code config) from each `.claude/` found on the walk up.
+
+**Standalone AGENTS.md provider (priority 10):** Walks up from `cwd` to repo root (or `$HOME`). At each ancestor, checks for a bare `AGENTS.md` file. Skips files whose immediate parent is a dotdir (`.omp/AGENTS.md` is not found by this provider -- that's the builtin provider's job). All discovered files are included (not just the nearest).
+
+**Walk-up boundaries:**
+
+- `repoRoot` = directory containing `.git`, or `null` if not in a git repo.
+- Walk stops at `repoRoot` (or `$HOME` if `repoRoot` is null).
+- Walk stops at the filesystem root if neither is reached.
+
+#### Injection into the system prompt
+
+Project-level context file content is rendered verbatim inside `<file path="...">` blocks in the system prompt:
+
+```xml
+<context>
+Follow the context files below for all tasks:
+<file path="/path/to/AGENTS.md">
+...file content verbatim...
+</file>
+</context>
+```
+
+**No processing occurs on the content.** No path resolution, no `@`-include expansion, no directive handling. Absolute paths, relative paths, or any other text in the file appear as literal strings in the prompt.
+
+#### Subdirectory AGENTS.md files
+
+In addition to project-level context files, OMP scans **downward** from `cwd` for `AGENTS.md` files in subdirectories:
+
+- Scan depth: 1 to 4 levels below `cwd`.
+- Maximum 200 files discovered.
+- Dotdirs (`.git`, `.omp`, `node_modules`, etc.) are excluded.
+- Content is **not** read into the prompt.
+- Only file paths are listed in a `<dir-context>` block:
+
+```xml
+<dir-context>
+Some directories may have their own rules. Deeper rules override higher ones.
+**MUST** read before making changes within:
+- trucking/fallback/AGENTS.md
+- trucking/offboard/triage/AGENTS.md
+</dir-context>
+```
+
+The agent is expected to `read` these files on demand when working in the corresponding directories.
+
+#### Constraints
 
 - No frontmatter support -- the entire file is content.
-- No provider precedence -- depth-based override only.
+- No `@`-include or `@`-import directives. This is a Claude Code feature, not an OMP feature.
+- Content is injected verbatim -- no path resolution or transformation.
+- Subdirectory `AGENTS.md` files are path-listed only, not content-injected.
 
-**Writing effective context files:**
+#### Writing effective context files
 
-- **Put project-wide constraints in the root `CLAUDE.md`.** Build system, dev environment, repo structure, coding conventions.
+- **Put project-wide constraints in the root context file.** Build system, dev environment, repo structure, coding conventions.
 - **Use directory-scoped files for local overrides.** A `backend/AGENTS.md` can specify workspace-specific instructions without affecting other workspaces.
-- **Use `@`-includes for large content.** Keep the main `CLAUDE.md` as a concise index that references detailed files.
 - **Avoid duplication with rules.** Context files are always loaded; rules are loaded on demand. Put "always needed" constraints in context files and domain-specific standards in rules.
+- **Do not use `@`-includes in `AGENTS.md`.** OMP does not expand them. If you need to reference another file, name the path and instruct the agent to read it.
 
 ### 2.7. Custom Tools
 
@@ -507,6 +557,10 @@ OMP assembles the system prompt from a template. Which template is used depends 
 
 **`APPEND_SYSTEM.md`:** Appends content to the prompt without replacing it. However, if `SYSTEM.md` is also present, the append content is stitched into the custom (replacement) path -- it does not restore the default prompt.
 
+**`APPEND_SYSTEM.md` discovery:** OMP checks for `APPEND_SYSTEM.md` in project-level `.omp/` (via `findConfigFile`), then falls back to user-level `~/.omp/agent/APPEND_SYSTEM.md`. The file content is read as raw text (`Bun.file(path).text()`) and injected verbatim into the system prompt template as `{{appendPrompt}}`. **No processing occurs:** no path resolution, no include expansion, no directive handling. Absolute paths or references to other files appear as literal strings in the prompt.
+
+**`SYSTEM.md` discovery:** Same nearest-ancestor `.omp/` walk as context files (see §2.6). Project-level overrides user-level. Read as raw text, no processing.
+
 **Default prompt contents (when no `SYSTEM.md` exists):**
 
 The base template includes, in order:
@@ -532,6 +586,7 @@ The base template includes, in order:
 
 - `SYSTEM.md` is a **full replacement**, not an injection. Creating one removes the entire OMP identity, contract, procedure, and all built-in guidance. Only use this if you intend to write your own complete system prompt.
 - `APPEND_SYSTEM.md` is the safe option for adding content without losing defaults -- but only when `SYSTEM.md` is absent.
+- Both files are injected verbatim -- no `@`-includes, no path resolution, no content transformation.
 - Native provider only -- not portable to other tools.
 - The base prompt template is hardcoded in the OMP binary (`packages/coding-agent/src/prompts/system/system-prompt.md`). It cannot be edited without rebuilding OMP.
 ---
