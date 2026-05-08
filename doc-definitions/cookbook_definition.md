@@ -14,7 +14,7 @@ A cookbook exists to:
 
 A cookbook is NOT:
 
-- A reference manual. If the topic needs subsections, tables of options, or exhaustive coverage, it belongs in a dedicated reference doc (see [OMP Configuration Reference](../references/omp-configuration_reference.md)).
+- A reference manual. If the topic needs subsections, tables of options, or exhaustive coverage, it belongs in a dedicated reference doc.
 - A tutorial or guide. If the content requires sequential reading or builds on previous sections, it belongs in a skill or a spec.
 - A plan or spec. If the content describes what to build or how to build it, it belongs in those documents (see [Specification Document Reference](spec-doc_definition.md), [Implementation Plan Reference](impl-plan_definition.md)).
 
