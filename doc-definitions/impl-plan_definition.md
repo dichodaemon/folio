@@ -1,21 +1,5 @@
 # Implementation Plan Definition
 
-> **Deprecated.** This document type is deprecated. Do not create new implementation plans.
->
-> - **New-feature plans** are replaced by beads issue tracking with a companion document (arch-design or spec).
-> - **Bug-fix plans** are replaced by a dedicated bug-fix document type (to be defined). Until that type exists, the bug-fix plan template below remains usable.
-> - **Refactoring work** is replaced by a dedicated refactoring document type or workflow (to be defined). Until that type exists, use beads issues with an arch-design companion.
->
-> Existing plans remain valid as historical records. Do not update them; archive them.
-
----
-
-## Historical Reference
-
-The content below is preserved for understanding existing plans. It is not a template for new work.
-
----
-
 Reference for writing implementation plan documents. A plan is a working document. It answers: how are we building this, in what order, and what are the risks? It's most useful before and during the build. After the feature ships, it loses value quickly -- the code is the truth now. Don't try to keep it perfectly current post-ship; archive it instead.
 
 ---
@@ -44,21 +28,21 @@ Plans fall into two categories with different structures. Use the one that match
 
 | Template | Use when | Key sections |
 |---|---|---|
-| **New-feature plan** (deprecated) | Building something new from a spec | Spec link, status table, architecture, data model, solution breakdown, design decisions, success criteria |
-| **Bug-fix plan** (deprecated) | Investigating and fixing a defect | Problem statement, root cause, diagnostic evidence, fix, validation, cleanup |
+| **New-feature plan** | Building something new from a spec | Spec link, status table, architecture, data model, solution breakdown, design decisions, success criteria |
+| **Bug-fix plan** | Investigating and fixing a defect | Problem statement, root cause, diagnostic evidence, fix, validation, cleanup |
 
 Both share universal patterns (section 2.3) but differ in structure because the work is fundamentally different: new features are designed forward from a spec; bug fixes are investigated backward from a symptom.
 
 ---
 
-## 3. Structure: New-Feature Plan (deprecated)
+## 3. Structure: New-Feature Plan
 
 ### 3.1. Metadata (required)
 
 ```markdown
 ---
 title: <Feature Name> -- Implementation Plan
-status: draft | in-progress | complete | archived
+status: draft | approved | issued | archived
 date: YYYY-MM-DD
 author: <git user name>
 spec: <path-to-companion-spec>
@@ -69,7 +53,7 @@ arch-design: <path-to-companion-arch-design> (optional)
 | Field | Purpose |
 |---|---|
 | `title` | Matches the spec title with "-- Implementation Plan" suffix. |
-| `status` | `draft` while planning, `in-progress` during build, `complete` when all success criteria pass, `archived` post-ship. |
+| `status` | `draft` while planning, `approved` when reviewed and ready for issue creation, `issued` when all tasks are converted to tracker issues, `archived` post-ship. |
 | `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created, not copied from another document. Must match the date prefix in the filename. Immutable after creation. |
 | `author` | Who owns this plan. Use `git config user.name`. |
 | `spec` | Relative path to the companion spec document. Every new-feature plan must have a companion spec, arch-design, or both. |
@@ -133,6 +117,7 @@ struct TokenBucket {
 ```
 
 Why monotonic clock: wall-clock adjustments (NTP, DST) would cause spurious token grants or starvation.
+````
 
 ### 3.5. Solution Breakdown (when applicable)
 
@@ -175,18 +160,39 @@ Per-component checklist of observable pass/fail conditions. These are more granu
 - [ ] Middleware passes request through when tokens are available
 ```
 
-When all success criteria pass, update the status to `complete`.
+When all success criteria are verified, the plan is ready for approval.
 
+
+### 3.8. Document Staleness Audit (required)
+
+Implementation work changes the codebase. Existing documents -- specs, arch-designs, READMEs, cookbooks -- may describe behavior or interfaces that the plan's changes invalidate. The plan must identify these documents and include tasks to update or archive them.
+
+**Procedure:**
+
+1. List every companion and related document (specs, arch-designs, READMEs) that describe the types, interfaces, or behaviors the plan modifies.
+2. For each document, state whether the plan's changes invalidate any of its content.
+3. If invalidated: add a task to the implementation status table (section 3.2) to update or archive the document. Place it in the last implementation phase or in a dedicated "Documentation" phase.
+4. If not invalidated: state why (e.g., "spec describes the interface contract, which is unchanged; only the internal implementation changes").
+
+````markdown
+### Documents reviewed
+
+| Document | Invalidated? | Action |
+|---|---|---|
+| `../specs/2026-04-13_pull-over-on-shoulder_spec.md` | Yes -- section 3 "Reference spline" decision is superseded. | Task 5.6: update spec design decisions table. |
+| `../arch-designs/behavior-planner_arch-design.md` | No -- arch-design describes the ManeuverDescriptor contract, which is unchanged. | None. |
+| `../../planning/sampling/README.md` | Yes -- describes ego-lane-only reference spline assumption. | Task 5.7: update README sampling overview. |
+````
 ---
 
-## 4. Structure: Bug-Fix Plan (deprecated)
+## 4. Structure: Bug-Fix Plan
 
 ### 4.1. Metadata (required)
 
 ```markdown
 ---
 title: <Bug Summary> -- Fix Plan
-status: draft | in-progress | complete | archived
+status: draft | approved | issued | archived
 date: YYYY-MM-DD
 author: <git user name>
 issue: <Jira ticket, GitHub issue URL, or path to issue document> (optional)
@@ -291,14 +297,55 @@ These apply to both templates:
 
 ## 6. Lifecycle
 
+### 6.1. Document Status
+
 | Status | Meaning | What changes |
 |---|---|---|
 | `draft` | Planning phase. Structure may change. | Everything. |
-| `in-progress` | Build started. Steps are being executed. | Implementation status table updated as tasks complete. Solution breakdown and design decisions sections may be refined as implementation reveals new details. |
-| `complete` | All success criteria / validation pass. Cleanup done. | Nothing -- plan is frozen. |
+| `approved` | Plan reviewed and accepted. Ready for issue creation. | Nothing in the plan content. Issue tracking handoff (section 6.2) begins. |
+| `issued` | All tasks converted to issues in the issue tracker. | Nothing. Plan is frozen -- the issue tracker is now the execution authority. |
 | `archived` | Feature shipped or bug fix merged. Code is now the truth. | Nothing. Do not update. If a future change invalidates the plan, write a new plan. |
 
-The transition from `complete` to `archived` should happen when the code is merged. An archived plan is a historical record, not a living document.
+### 6.2. Issue Tracking Handoff
+
+When the plan transitions from `draft` to `approved`, convert it into trackable issues. The plan is a design artifact; the issue tracker is the execution artifact. They are not redundant -- the plan captures *why* and *how*; the issues track *what remains* and *who is doing it*.
+
+**Procedure:**
+
+1. **Create a master epic** for the entire plan. Title: the plan's title. Description: link to the plan file.
+2. **Create one phase epic per phase** in the implementation status table (section 3.2). Title: the phase name. Link each phase epic as a child of the master epic (`parent-child`).
+3. **Create one task issue per task** in the status table. Link each task as a child of its phase epic (`parent-child`).
+4. **Wire `blocks` dependencies** between phase epics according to the dependency declarations in the phase summary (e.g., "depends on phase 1" becomes a `blocks` edge from phase 1's epic to phase 2's epic).
+5. **Wire `blocks` dependencies between tasks** when the solution breakdown (section 3.5) declares explicit inter-task dependencies within a phase.
+6. **Include staleness audit tasks** from section 3.8 as issues in the appropriate phase epic.
+7. **Update the plan's status** to `issued`. The plan is now frozen.
+
+After handoff, the issue tracker is the authority on what is done and what remains. Do not update the plan's status table -- it reflects the state at the time of handoff, not the current execution state.
+
+### 6.3. Batch Issue Creation
+
+When the issue tracker supports batch creation (e.g., `bd create --graph <plan.json>`), convert the plan's phases and tasks into a single graph file and create all issues in one operation. This avoids per-issue overhead and ensures the full dependency graph is visible from the start.
+
+The graph file encodes:
+- One node per epic (master + phases) and one node per task.
+- `parent-child` edges from master epic to phase epics, and from phase epics to tasks.
+- `blocks` edges between phase epics (from the phase dependency declarations).
+- `blocks` edges between tasks (from the solution breakdown dependencies).
+
+### 6.4. Lifecycle Transitions
+
+```
+draft ──> approved ──> issued ──> archived
+  │                                  ▲
+  │          (work happens via       │
+  │           issue tracker)         │
+  │                                  │
+  └──────────────────────────────────┘
+              (trivial plans may skip
+               straight to archived)
+```
+
+The `in-progress` and `complete` statuses from the pre-issue-tracking workflow are no longer used. The issue tracker replaces the plan's status table as the progress-tracking mechanism.
 
 ---
 
@@ -309,11 +356,13 @@ The transition from `complete` to `archived` should happen when the code is merg
 | **Plan without spec or arch-design** (new features) | No agreement on *what* to build; the plan is implementing assumptions. | Write a spec or arch-design first. The plan references it. |
 | **Plan as spec** | Mixes "what to build" with "how to build it." Objective, non-goals, and acceptance criteria are embedded in the plan. | Split into spec (what/why) and plan (how). |
 | **Pseudocode plan** | Solution breakdown uses invented syntax instead of real signatures and types. Implementer can't find the code. | Use real function names, real types, real file paths. |
-| **Missing cleanup** | Debug logs and temporary instrumentation ship to production. | Add a cleanup section. Don't mark `complete` until it's done. |
-| **Stale status table** | Status table says "Pending" for tasks completed days ago. | Update status as you work, not in a batch at the end. |
+| **Missing cleanup** | Debug logs and temporary instrumentation ship to production. | Add a cleanup section. Don't mark the work done until it's resolved. |
+| **Tracking progress in the plan** | Plan status table diverges from issue tracker. Two sources of truth. | After `issued`, the issue tracker is authoritative. Do not update the plan's status table. |
 | **Post-ship maintenance** | Updating the plan after the code has diverged. The plan becomes a second source of truth that contradicts the code. | Archive the plan. Write a new plan if a new change is needed. |
 | **No validation criteria** | "Test that it works" instead of observable before/after conditions. | State what you'll observe, in what tool, with what values. |
 | **Hypothesis-free debugging** | Bug-fix plan jumps to a fix without documenting the root cause investigation. | Document what you investigated, what you found, and why. The next person with similar symptoms needs this. |
+| **Skipping issue handoff** | Plan approved but tasks never converted to issues. No dependency tracking, no parallelization visibility, no persistent memory across sessions. | Convert to issues immediately on approval (section 6.2). |
+| **Missing staleness audit** | Plan changes interfaces described in existing docs. Docs go stale silently. | Always complete section 3.8 before approval. |
 
 ---
 

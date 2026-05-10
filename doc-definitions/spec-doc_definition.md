@@ -15,7 +15,7 @@ A spec exists to:
 
 A spec is NOT:
 
-- An implementation plan (deprecated). Task sequencing and tracking are now handled by beads issue tracking. A spec covers *what* to build and *why*; beads issues cover *how* and *in what order*. See [Implementation Plan Reference](impl-plan_definition.md).
+- An implementation plan. A plan covers *how* to build it -- task sequencing, file-level changes, phased execution. A spec covers *what* to build and *why*. See [Implementation Plan Definition](impl-plan_definition.md).
 - A design study. If alternatives were evaluated, the spec records the winner and the rationale, not the full analysis. The analysis belongs in a design study. See [Design Study Definition](design-study_definition.md).
 - An arch-design. An arch-design defines internal architecture: types, decomposition, and function contracts. For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters, use a spec. See [Architecture Design Definition](arch-design_definition.md).
 - A ticket or task tracker. It doesn't track who is doing what or when.

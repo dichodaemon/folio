@@ -48,7 +48,7 @@ Workflow documents are organized by document type:
 |---|---|---|
 | `workflow/specs/` | Specifications | [spec-doc_definition.md](../doc-definitions/spec-doc_definition.md) |
 | `workflow/briefs/` | Briefs | [brief_definition.md](../doc-definitions/brief_definition.md) |
-| `workflow/plans/` | Implementation plans (deprecated) | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
+| `workflow/plans/` | Implementation plans | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
 | `workflow/design-studies/` | Design studies | [design-study_definition.md](../doc-definitions/design-study_definition.md) |
 | `workflow/arch-designs/` | Architecture designs | [arch-design_definition.md](../doc-definitions/arch-design_definition.md) |
 
@@ -102,7 +102,7 @@ The last underscore-delimited segment is always the doctype. This is positional,
 |---|---|---|
 | `_brief` | Workflow | Short orientation document that frames work before committing to a spec or plan |
 | `_spec` | Workflow | Feature specification |
-| `_plan` | Workflow (deprecated) | Implementation plan. Deprecated: use beads issue tracking with a companion document instead. See [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md). |
+| `_plan` | Workflow | Implementation plan. Converted to issue tracker issues on approval. See [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md). |
 | `_design-study` | Workflow | Structured analysis of a problem space with alternatives and evaluation |
 | `_arch-design` | Workflow | Settled internal architecture of a component, library, or subsystem |
 | `_definition` | Doc-definitions | Defines the format and conventions for a document type |
