@@ -461,7 +461,7 @@ Open questions may exist while the document is in `draft` status. Each question 
 |---|---|
 | **Design study** | An arch-design may be produced from a design study. The study records the reasoning; the arch-design records the settled result. The `design-study` metadata field links them. When no study exists, the Design Decisions section provides inline rationale. |
 | **Spec** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters (CLI tools, API endpoints, configuration changes), use a spec instead. Both document types can coexist for complex features with distinct external and internal concerns. |
-| **Implementation plan** (deprecated) | Implementation plans are deprecated. When an arch-design exists, beads issue tracking replaces the plan for sequencing and task management. |
+| **Implementation plan** | A plan may reference an arch-design as its companion. The arch-design defines what to build (types, contracts, decomposition); the plan sequences how to build it (task ordering, file changes, status tracking). See [Implementation Plan Definition](impl-plan_definition.md). |
 | **Brief** | A brief may identify that an arch-design is needed. The brief frames the work; the arch-design (possibly after a design study) settles the architecture. |
 | **Cookbook** | If an arch-design surfaces practical implementation findings (tool quirks, workarounds, patterns), those belong in a cookbook entry, not in the arch-design. |
 
