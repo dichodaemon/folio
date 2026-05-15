@@ -54,14 +54,13 @@ This definition is written for component-level assessments -- the scope that typ
 
 ## 3. Document Map
 
-An arch-assessment groups its sections into four layers:
+An arch-assessment groups its sections into three layers:
 
 | Layer | Sections | Purpose |
 |---|---|---|
 | **Framing** | Objective, Scope, Methodology | What is being assessed, what is excluded, and how the measurements are taken. |
 | **Global** | Dependency Diagram, Metrics Table, Quadrant Chart, Findings | Bird's-eye view of the system's subsystem structure and health. |
-| **Subsystem** | One section per subsystem: Dependency Diagram, Metrics Table, Quadrant Chart (optional), Findings | Per-subsystem view showing package-level structure. |
-| **Package** | Selective sections for packages with findings: Metrics Table, Dependency Diagram (optional), Findings | Target-level detail for packages that warrant it. |
+| **Subsystems** | One section per subsystem, each containing: Dependency Diagram, Metrics Table, Quadrant Chart (optional), Findings, and Package subsections for packages with findings | Per-subsystem view with package detail nested inline. |
 
 The Minimal Example (section 4) shows a complete arch-assessment following this structure. The remainder of this document specifies each section in detail.
 
@@ -165,9 +164,11 @@ quadrantChart
 
 - **Zone of Pain: Core.** D=0.50, I=0.00, A=0.50. Maximally stable with moderate abstractness. Every change to Core ripples outward to 12 dependents. The 4 concrete targets (out of 8 total) are the coupling surface.
 
-## 5. Subsystem: Core
+## 5. Subsystems
 
-### 5.1. Dependency Diagram
+### 5.1. Core
+
+#### 5.1.1. Dependency Diagram
 
 ```mermaid
 graph TD
@@ -186,7 +187,7 @@ graph TD
     classDef ext fill:#f5f5f5,stroke:#999,stroke-dasharray:5 5
 ```
 
-### 5.2. Metrics
+#### 5.1.2. Metrics
 
 | Package | Ca | Ce | I | A | D | Disc. Commits | Risk |
 |---|---|---|---|---|---|---|---|
@@ -194,20 +195,20 @@ graph TD
 | utils | 3 | 1 | 0.25 | 0.00 | 0.75 | 1.8 | 1.4 |
 | math | 1 | 2 | 0.67 | 0.50 | 0.17 | 1.2 | 0.4 |
 
-### 5.3. Findings
+#### 5.1.3. Findings
 
 - **Zone of Pain: utils.** D=0.75, I=0.25, A=0.00. Fully concrete and fairly stable. 3 dependents are exposed to every implementation change.
 
-## 6. Package: Core/utils
+#### 5.1.4. Package: utils
 
-### 6.1. Metrics
+##### Metrics
 
 | Target | Ca | Ce | I | A | D |
 |---|---|---|---|---|---|
 | string_helpers | 2 | 1 | 0.33 | 0 | 0.67 |
 | format | 1 | 0 | 0.00 | 0 | 1.00 |
 
-### 6.2. Findings
+##### Findings
 
 - **Zone of Pain: format.** D=1.00, I=0.00, A=0.00. Maximally stable, fully concrete, no abstraction boundary. Any internal change affects its sole dependent.
 ````
@@ -286,7 +287,7 @@ If there are no findings at a level, state "No findings" rather than omitting th
 
 ### 5.6. Subsystem Sections (required)
 
-One section per subsystem. Each subsystem section mirrors the global structure but one level down: nodes are packages within the subsystem, edges are inter-package dependencies.
+One section per subsystem under a shared "Subsystems" heading. Each subsystem section mirrors the global structure but one level down: nodes are packages within the subsystem, edges are inter-package dependencies.
 
 Each subsystem section contains:
 
@@ -298,21 +299,19 @@ Each subsystem section contains:
 
 **Findings (required).** Findings derived from the subsystem's package-level metrics and structure. Same finding categories as the global level, applied to the packages within this subsystem.
 
-### 5.7. Package Sections (when applicable)
-
-Package sections are included selectively -- only for packages that have findings worth surfacing at the target level. Healthy packages are adequately covered by their subsystem section's metrics table. A package section is warranted when:
+**Package Subsections (when applicable).** Nested under their parent subsystem, after the findings. Included selectively -- only for packages that have findings worth surfacing at the target level. Healthy packages are adequately covered by their subsystem section's metrics table. A package subsection is warranted when:
 
 - The package contains an internal cycle between targets.
 - The package has a finding (Zone of Pain, high risk, hub concentration) and the target-level breakdown illuminates the cause.
 - The package has enough internal structure that a target-level diagram adds understanding.
 
-Each package section contains:
+Each package subsection contains:
 
-**Metrics Table (required when section is present).** One row per target within the package. At minimum: Ca, Ce, I, A, D.
+**Metrics Table (required when subsection is present).** One row per target within the package. At minimum: Ca, Ce, I, A, D.
 
 **Dependency Diagram (when applicable).** Include when internal target structure has findings worth visualizing -- cycles between targets, unexpected coupling patterns. Omit when the metrics table alone tells the story.
 
-**Findings (required when section is present).** Target-level findings within the package.
+**Findings (required when subsection is present).** Target-level findings within the package.
 
 ---
 
