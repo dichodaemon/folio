@@ -179,6 +179,7 @@ status: draft | review | approved | implemented | stale | superseded
 date: YYYY-MM-DD
 author: <git user name>
 design-study: <path-to-companion-design-study> (optional)
+arch-assessment: <path-to-companion-arch-assessment> (optional)
 ---
 ```
 
@@ -189,6 +190,7 @@ design-study: <path-to-companion-design-study> (optional)
 | `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created. Immutable after creation. Retained as provenance metadata; does not appear in the filename. |
 | `author` | Who owns this document. Use `git config user.name`. |
 | `design-study` | Optional. Relative path to the companion design study that produced this architecture. Present when a study exists, absent otherwise. |
+| `arch-assessment` | Optional. Relative path to the companion arch-assessment that measures this architecture's health. Present when an assessment exists, absent otherwise. |
 
 **File naming:** `<component-name>_arch-design.md`. No date prefix -- an arch-design is a living document, not a point-in-time artifact. E.g., `behavior-planner_arch-design.md`.
 
