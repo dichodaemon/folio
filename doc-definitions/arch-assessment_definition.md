@@ -147,10 +147,21 @@ Top-2 cutoff. Core and Storage are prioritized for diagnosis. API has high chang
 
 <!-- No cycles detected, so CAUTION callout and Cycle Participants subsection are omitted. -->
 
-| # | Component | MB | I | A | Quadrant | Intervention |
-|---|---|---|---|---|---|---|
-| 1 | Core | 2.81 | 0.00 | 0.50 | Low I, Low A | Rigid. Extract abstractions: define stable interfaces for the 4 concrete targets (out of 8 total) to reduce the coupling surface exposed to 12 dependents. |
-| 2 | Storage | 0.92 | 0.38 | 0.33 | Low I, Low A | Rigid. Introduce adapter headers between Storage internals and Core to isolate implementation changes from the 5 afferent dependents. |
+### Top-5 by Maintenance Burden
+
+**1. Core** — MB 2.81, I = 0.00, A = 0.50 — Zone of Pain (rigid)
+
+Maximally stable with moderate abstractness. Every change to Core ripples outward to 12 dependents. The 4 concrete targets (out of 8 total) are the coupling surface. D=0.50 places Core on the boundary of the Zone of Pain — stable enough to be load-bearing, but with insufficient abstraction to shield dependents from implementation changes.
+
+> [!TIP]
+> **Intervention:** Extract abstractions. Define stable interfaces for the 4 concrete targets to reduce the coupling surface exposed to 12 dependents.
+
+**2. Storage** — MB 0.92, I = 0.38, A = 0.33 — Zone of Pain (rigid)
+
+Moderate stability and abstractness. 5 afferent dependents are coupled to Storage internals. Changes to the storage layer propagate to Core consumers through the shared dependency chain.
+
+> [!TIP]
+> **Intervention:** Introduce adapter headers between Storage internals and Core to isolate implementation changes from the 5 afferent dependents.
 
 ## 7. Latent Risk
 
@@ -335,44 +346,48 @@ The section structure is:
 
 ### Cycle Participants
 
-| Package | Cycle | I | A | Intervention |
-|---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+**package-name** — I = X.XX, A = X.XX — Quadrant (qualifier)
+
+Analysis paragraph: which cycle the component belongs to, structural
+evidence, metric values.
+
+> [!TIP]
+> **Intervention:** Recommended actions targeting the cycle edges.
 
 ### Top-N by Maintenance Burden
 
-| # | Package | MB | I | A | Quadrant | Intervention |
-|---|---|---|---|---|---|---|
-| ... | ... | ... | ... | ... | ... | ... |
+**1. package-name** — MB X.XX, I = X.XX, A = X.XX — Quadrant (qualifier)
+
+Analysis paragraph: structural diagnosis, metric evidence, coupling
+surface breakdown. This paragraph explains what the problem is and why
+it matters.
+
+> [!TIP]
+> **Intervention:** Recommended actions. What to do and why.
+> Implementation sequencing belongs in a plan.
 ```
 
-When no cycles exist, the CAUTION callout and Cycle Participants subsection are omitted. Only the Top-N by Maintenance Burden subsection appears (without a subsection heading, as in the minimal example).
+When no cycles exist, the CAUTION callout and Cycle Participants subsection are omitted. Only the Top-N by Maintenance Burden subsection appears.
 
-**Cycle Participants table columns:**
+**Cycle Participants entries:**
 
-- **Package.** The component participating in the cycle.
-- **Cycle.** The cycle path this component belongs to (e.g., `A → B → C → A`).
-- **I.** Instability.
-- **A.** Abstractness.
-- **Intervention.** Recommended intervention class and actions, same as Top-N rows.
+- **Heading line.** `**package-name** — I = X.XX, A = X.XX — Quadrant (qualifier)`.
+- **Analysis paragraph.** Which cycle the component belongs to, structural evidence, metric values.
+- **Intervention callout.** A `> [!TIP]` block with `**Intervention:**` prefix. Recommended actions targeting the cycle edges specifically.
 
-**Top-N by Maintenance Burden table columns:**
+**Top-N by Maintenance Burden entries:**
 
-- **#.** Rank by MB.
-- **Package.** The component name.
-- **MB.** Maintenance burden score.
-- **I.** Instability.
-- **A.** Abstractness.
-- **Quadrant.** (I, A) quadrant classification.
-- **Intervention.** Recommended intervention class and actions.
+- **Heading line.** `**N. package-name** — MB X.XX, I = X.XX, A = X.XX — Quadrant (qualifier)`. Numbered by MB rank.
+- **Analysis paragraph.** Structural diagnosis, metric evidence, coupling surface breakdown. Explains the nature of the problem.
+- **Intervention callout.** A `> [!TIP]` block with `**Intervention:**` prefix. Recommended intervention class and specific actions. When no intervention is warranted, the callout states so with justification (e.g., "No intervention needed. Monitor X for stability.").
 
 A component may appear in both subsections if it participates in a cycle and also ranks in the top-N by MB. In that case, the cycle row takes precedence and the component is not duplicated in the Top-N table.
 
-For each component (whether cycle participant or top-N), the row contains:
+For each component (whether cycle participant or top-N), the entry contains:
 
-- **(I, A) quadrant classification.** Which of the four quadrants the component occupies.
-- **Intervention class.** The structural nature of the problem and the recommended intervention category.
-- **Recommended actions.** Specific, component-level actions (e.g., "extract interface for scoring vocabulary types"). The assessment identifies what to do and why; implementation sequencing belongs in a plan.
+- **(I, A) quadrant classification.** On the heading line after the metrics.
+- **Analysis paragraph.** Structural evidence and metric values supporting the classification.
+- **Intervention callout.** A `> [!TIP]` GFM alert with specific, component-level actions. The assessment identifies what to do and why; implementation sequencing belongs in a plan.
 
 The quadrant classification and intervention class are:
 
