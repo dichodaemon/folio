@@ -328,7 +328,7 @@ When the issue tracker supports batch creation (e.g., `bd create --graph <plan.j
 
 The graph file encodes:
 - One node per epic (master + phases) and one node per task.
-- `parent-child` edges from master epic to phase epics, and from phase epics to tasks.
+- `parent-child` edges wiring children to parents (child is `from_key`, parent is `to_key` — the child depends on the parent). Phase epics are children of the master epic; tasks are children of their phase epic.
 - `blocks` edges between phase epics (from the phase dependency declarations).
 - `blocks` edges between tasks (from the solution breakdown dependencies).
 
