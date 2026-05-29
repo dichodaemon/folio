@@ -444,7 +444,7 @@ One section per subsystem under a shared "Subsystems" heading. Each subsystem se
 
 Each subsystem section contains:
 
-**Dependency Diagram (required).** Nodes are packages within the subsystem. Cross-subsystem dependencies appear as external reference nodes, visually distinguished from internal nodes (e.g., dashed borders, muted colors). The diagram shows the package-level structure including external dependencies without expanding their internals.
+**Dependency Diagram (required).** Nodes are packages within the subsystem. Cross-subsystem dependencies appear as external reference nodes, visually distinguished from internal nodes (e.g., dashed borders, muted colors). The diagram shows the package-level structure including external dependencies without expanding their internals. For single-package subsystems, the diagram shows the one internal package plus all external subsystem nodes it depends on or that depend on it -- this is the primary structural insight for understanding the subsystem's coupling surface.
 
 **Metrics Table (required).** One row per package within the subsystem. Same column set as the global metrics table.
 
