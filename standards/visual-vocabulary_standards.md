@@ -44,7 +44,7 @@ Operations carry a stereotype label that names their execution mechanism. The la
 |---|---|
 | `«kernel»` | GPU kernel launch (host-initiated, device-executed) |
 | `«function»` | Free function or static method (CPU) |
-| `«method»` | Instance method on a component (CPU) |
+| `«method»` | Instance method on a component (CPU). Named as `ClassName::MethodName`. |
 
 **Extension rule:** New stereotypes are permitted when no existing one accurately describes the execution mechanism. A stereotype must be a single noun naming *how* the operation executes, not *what* it computes. Examples of valid extensions: `«interrupt»`, `«coroutine»`, `«shader»`. Examples of invalid stereotypes: `«validator»`, `«parser»` (these name the business function, not the mechanism).
 
@@ -158,7 +158,7 @@ At the context level, nodes are groupings. They follow the same visual conventio
 At the detail level, nodes are either components or operations:
 
 - **Components** are labeled with their name. They have solid borders (or dashed if external) and the fill color of their owning grouping.
-- **Operations** are labeled with a stereotype prefix followed by their name. They have solid borders and the fill color of their owning grouping. Operations must be visually associated with their owning component -- either placed inside the same container or connected from the component by an arrow.
+- **Operations** are labeled with a stereotype prefix followed by their name. Methods use `ClassName::MethodName` to identify both the owning component and the operation. They have solid borders and the fill color of their owning grouping. Operations must be visually associated with their owning component -- either placed inside the same container or connected from the component by an arrow.
 
 #### 3.2.3. Arrow Semantics
 
@@ -294,10 +294,10 @@ graph TD
 
     subgraph processing_group [Processing]
         FrameProcessor[FrameProcessor]:::processing
-        UploadFrames["«method»<br>UploadFrames"]:::processing
+        UploadFrames["«method»<br>FrameProcessor::UploadFrames"]:::processing
         ColorCorrection["«kernel»<br>ColorCorrection"]:::processing
         Denoise["«kernel»<br>Denoise"]:::processing
-        ReadBack["«method»<br>ReadBack"]:::processing
+        ReadBack["«method»<br>FrameProcessor::ReadBack"]:::processing
     end
 
     subgraph encoding_group [Encoding]
@@ -321,7 +321,7 @@ graph TD
 ```
 
 > [!NOTE]
-> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations place the stereotype on its own line above the name: `«function»` for CPU free functions, `«method»` for instance methods, `«kernel»` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
+> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations place the stereotype on its own line above the name: `«function»` for CPU free functions, `«method»` for instance methods (using `ClassName::MethodName`), `«kernel»` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
 
 ---
 
