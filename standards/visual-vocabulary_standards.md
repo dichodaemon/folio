@@ -6,11 +6,9 @@ These standards define *what* to communicate and *how* to encode it visually. Th
 
 ---
 
-## 1. Entity Taxonomy
+## 1. Structural Hierarchy
 
-Architectural diagrams represent software structure at varying levels of detail. The taxonomy defines four well-known levels and a recursive extension mechanism.
-
-### 1.1. Structural Hierarchy
+Architectural diagrams represent software structure at varying levels of detail. The hierarchy defines four well-known levels and a recursive extension mechanism.
 
 | Level | Entity | Description |
 |---|---|---|
@@ -21,34 +19,7 @@ Architectural diagrams represent software structure at varying levels of detail.
 
 Levels L0 through L2 are concrete and universal -- every build system has files, compilation units, and packages. L3+ is project-specific and recursive. A project with a shallow structure may have a single level of grouping. A large monorepo may have groupings of groupings (e.g., "Platform" containing "Networking" and "Storage" groupings, each containing packages).
 
-The structural hierarchy applies directly to dependency diagrams. Data flow diagrams use a different entity model (section 3) but reference the structural hierarchy for containment.
-
-### 1.2. Data Flow Entities
-
-Data flow diagrams use two entity kinds:
-
-| Entity | Description | Visual indicator |
-|---|---|---|
-| **Component** | An entity with runtime identity: a class instance, service, or module that owns state and orchestrates work. You could point at a running system and identify it. | Plain label |
-| **Operation** | A function, method, or kernel that a component invokes. No independent runtime identity -- it exists as work performed by its owning component. | Stereotype prefix (section 1.3) |
-
-An operation node must be inside the container of its owning component, or connected from it by an arrow. The reader infers ownership from containment or connectivity.
-
-### 1.3. Stereotypes
-
-Operations carry a stereotype label that names their execution mechanism. The label appears on its own line above the operation name in the node text. Use the Unicode characters `«` (U+00AB) and `»` (U+00BB) -- the ASCII approximation `<<`/`>>` conflicts with shape delimiters in some diagramming tools.
-
-**Seed inventory:**
-
-| Stereotype | Meaning |
-|---|---|
-| `«kernel»` | GPU kernel launch (host-initiated, device-executed) |
-| `«function»` | Free function or static method (CPU) |
-| `«method»` | Instance method on a component (CPU). Named as `ClassName::MethodName`. |
-
-**Extension rule:** New stereotypes are permitted when no existing one accurately describes the execution mechanism. A stereotype must be a single noun naming *how* the operation executes, not *what* it computes. Examples of valid extensions: `«interrupt»`, `«coroutine»`, `«shader»`. Examples of invalid stereotypes: `«validator»`, `«parser»` (these name the business function, not the mechanism).
-
-The stereotype set is open but grows slowly. Before adding one, check whether an existing stereotype covers the mechanism.
+The structural hierarchy applies directly to dependency diagrams. Data flow diagrams use a different entity model (section 3.2) but reference the structural hierarchy for containment.
 
 ---
 
@@ -63,7 +34,7 @@ Four visual channels encode architectural information. Their meanings are consis
 | **Fill color** | Grouping ownership | Each grouping gets a unique color. All entities belonging to that grouping share its color. |
 | **Border style** | Scope membership | **Solid** = internal (defined within the diagram's scope). **Dashed** = external reference (defined outside the diagram's scope, shown for context). |
 | **Arrow weight** | Transport mechanism | **Thin** = normal data flow or dependency. **Thick** = hardware boundary crossing (host-to-device or device-to-host transfer). |
-| **Stereotype text** | Execution mechanism | Guillemet-prefixed label on operation nodes (section 1.3). Absent on component nodes. |
+| **Stereotype text** | Execution mechanism | Guillemet-prefixed label on operation nodes (section 3.2.2). Absent on component nodes. |
 
 ### 2.2. Fill Color
 
@@ -108,7 +79,7 @@ Dependency diagrams show structural coupling: which entities depend on which oth
 
 #### 3.1.1. Levels
 
-Each dependency diagram operates at one level of the structural hierarchy (section 1.1). A node at level N can be expanded into a separate diagram at level N+1.
+Each dependency diagram operates at one level of the structural hierarchy (section 1). A node at level N can be expanded into a separate diagram at level N+1.
 
 | Level | Nodes are | Containers are | Scope |
 |---|---|---|---|
@@ -140,7 +111,34 @@ Data flow diagrams show how data moves through the system at runtime. Arrows poi
 
 This is a custom notation tailored to software architecture documentation. It is not a standard DFD (Yourdon-DeMarco or Gane-Sarson). It borrows selectively from DFD concepts while adapting them to the needs of code-level architectural communication.
 
-#### 3.2.1. Levels
+#### 3.2.1. Entity Model
+
+Data flow diagrams use two entity kinds:
+
+| Entity | Description | Visual indicator |
+|---|---|---|
+| **Component** | An entity with runtime identity: a class instance, service, or module that owns state and orchestrates work. You could point at a running system and identify it. | Plain label |
+| **Operation** | A function, method, or kernel that a component invokes. No independent runtime identity -- it exists as work performed by its owning component. | Stereotype prefix (section 3.2.2) |
+
+An operation node must be inside the container of its owning component, or connected from it by an arrow. The reader infers ownership from containment or connectivity.
+
+#### 3.2.2. Stereotypes
+
+Operations carry a stereotype label that names their execution mechanism. The label appears on its own line above the operation name in the node text. Use the Unicode characters `«` (U+00AB) and `»` (U+00BB) -- the ASCII approximation `<<`/`>>` conflicts with shape delimiters in some diagramming tools.
+
+**Seed inventory:**
+
+| Stereotype | Meaning |
+|---|---|
+| `«kernel»` | GPU kernel launch (host-initiated, device-executed) |
+| `«function»` | Free function or static method (CPU) |
+| `«method»` | Instance method on a component (CPU). Named as `ClassName::MethodName`. |
+
+**Extension rule:** New stereotypes are permitted when no existing one accurately describes the execution mechanism. A stereotype must be a single noun naming *how* the operation executes, not *what* it computes. Examples of valid extensions: `«interrupt»`, `«coroutine»`, `«shader»`. Examples of invalid stereotypes: `«validator»`, `«parser»` (these name the business function, not the mechanism).
+
+The stereotype set is open but grows slowly. Before adding one, check whether an existing stereotype covers the mechanism.
+
+#### 3.2.3. Levels
 
 Data flow diagrams have two named levels:
 
@@ -151,7 +149,7 @@ Data flow diagrams have two named levels:
 
 If a detail diagram exceeds approximately 9 process nodes, split it by grouping -- one detail diagram per grouping or per data flow path -- rather than adding a third level. The goal is readability, not completeness in a single diagram.
 
-#### 3.2.2. Node Kinds
+#### 3.2.4. Node Kinds
 
 At the context level, nodes are groupings. They follow the same visual conventions as dependency diagram grouping nodes: fill color by grouping, solid border for in-scope, dashed border for external references.
 
@@ -160,14 +158,14 @@ At the detail level, nodes are either components or operations:
 - **Components** are labeled with their name. They have solid borders (or dashed if external) and the fill color of their owning grouping.
 - **Operations** are labeled with a stereotype prefix followed by their name. Methods use `ClassName::MethodName` to identify both the owning component and the operation. They have solid borders and the fill color of their owning grouping. Operations must be visually associated with their owning component -- either placed inside the same container or connected from the component by an arrow.
 
-#### 3.2.3. Arrow Semantics
+#### 3.2.5. Arrow Semantics
 
 - **Thin labeled arrows** represent data flow. The label names the data being transferred (a type, a struct, a concept). Every arrow must have a label.
 - **Thick labeled arrows** represent hardware boundary crossings (H2D or D2H). The label names the data being transferred. Use thick arrows only where the boundary crossing is architecturally significant.
 
 Data stores (persistent or cycle-scoped buffers, databases, shared memory regions) may appear as nodes when their presence clarifies the data flow. They are not required. When included, they should be visually distinguished from process nodes (e.g., different shape or annotation).
 
-#### 3.2.4. Containment
+#### 3.2.6. Containment
 
 Detail-level data flow diagrams use one level of containment: grouping containers holding components and operations. Never nest containers. If a grouping has internal sub-structure that matters, create a separate detail diagram scoped to that grouping.
 
