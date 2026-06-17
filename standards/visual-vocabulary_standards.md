@@ -36,7 +36,7 @@ An operation node must be inside the container of its owning component, or conne
 
 ### 1.3. Stereotypes
 
-Operations carry a stereotype label that names their execution mechanism. The label appears as a guillemet-wrapped prefix in the node text (e.g., `«function» ValidateInput`). Use the Unicode characters `«` (U+00AB) and `»` (U+00BB) -- the ASCII approximation `<<`/`>>` conflicts with shape delimiters in some diagramming tools.
+Operations carry a stereotype label that names their execution mechanism. The label appears on its own line above the operation name in the node text. Use the Unicode characters `«` (U+00AB) and `»` (U+00BB) -- the ASCII approximation `<<`/`>>` conflicts with shape delimiters in some diagramming tools.
 
 **Seed inventory:**
 
@@ -289,15 +289,15 @@ A detailed view showing components and stereotyped operations within grouping co
 graph TD
     subgraph ingest_group [Ingest]
         FrameDecoder[FrameDecoder]:::ingest
-        ParseMetadata["«function» ParseMetadata"]:::ingest
+        ParseMetadata["«function»<br>ParseMetadata"]:::ingest
     end
 
     subgraph processing_group [Processing]
         FrameProcessor[FrameProcessor]:::processing
-        UploadFrames["«method» UploadFrames"]:::processing
-        ColorCorrection["«kernel» ColorCorrection"]:::processing
-        Denoise["«kernel» Denoise"]:::processing
-        ReadBack["«method» ReadBack"]:::processing
+        UploadFrames["«method»<br>UploadFrames"]:::processing
+        ColorCorrection["«kernel»<br>ColorCorrection"]:::processing
+        Denoise["«kernel»<br>Denoise"]:::processing
+        ReadBack["«method»<br>ReadBack"]:::processing
     end
 
     subgraph encoding_group [Encoding]
@@ -321,7 +321,7 @@ graph TD
 ```
 
 > [!NOTE]
-> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations carry stereotype prefixes: `«function»` for CPU free functions, `«method»` for instance methods, `«kernel»` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
+> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations place the stereotype on its own line above the name: `«function»` for CPU free functions, `«method»` for instance methods, `«kernel»` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
 
 ---
 
