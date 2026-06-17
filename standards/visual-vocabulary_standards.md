@@ -36,17 +36,17 @@ An operation node must be inside the container of its owning component, or conne
 
 ### 1.3. Stereotypes
 
-Operations carry a stereotype label that names their execution mechanism. The label appears as a guillemet-wrapped prefix in the node text (e.g., `<<function>> ValidateInput`).
+Operations carry a stereotype label that names their execution mechanism. The label appears as a guillemet-wrapped prefix in the node text (e.g., `«function» ValidateInput`). Use the Unicode characters `«` (U+00AB) and `»` (U+00BB) -- the ASCII approximation `<<`/`>>` conflicts with shape delimiters in some diagramming tools.
 
 **Seed inventory:**
 
 | Stereotype | Meaning |
 |---|---|
-| `<<kernel>>` | GPU kernel launch (host-initiated, device-executed) |
-| `<<function>>` | Free function or static method (CPU) |
-| `<<method>>` | Instance method on a component (CPU) |
+| `«kernel»` | GPU kernel launch (host-initiated, device-executed) |
+| `«function»` | Free function or static method (CPU) |
+| `«method»` | Instance method on a component (CPU) |
 
-**Extension rule:** New stereotypes are permitted when no existing one accurately describes the execution mechanism. A stereotype must be a single noun naming *how* the operation executes, not *what* it computes. Examples of valid extensions: `<<interrupt>>`, `<<coroutine>>`, `<<shader>>`. Examples of invalid stereotypes: `<<validator>>`, `<<parser>>` (these name the business function, not the mechanism).
+**Extension rule:** New stereotypes are permitted when no existing one accurately describes the execution mechanism. A stereotype must be a single noun naming *how* the operation executes, not *what* it computes. Examples of valid extensions: `«interrupt»`, `«coroutine»`, `«shader»`. Examples of invalid stereotypes: `«validator»`, `«parser»` (these name the business function, not the mechanism).
 
 The stereotype set is open but grows slowly. Before adding one, check whether an existing stereotype covers the mechanism.
 
@@ -289,15 +289,15 @@ A detailed view showing components and stereotyped operations within grouping co
 graph TD
     subgraph ingest_group [Ingest]
         FrameDecoder[FrameDecoder]:::ingest
-        ParseMetadata["<<function>> ParseMetadata"]:::ingest
+        ParseMetadata["«function» ParseMetadata"]:::ingest
     end
 
     subgraph processing_group [Processing]
         FrameProcessor[FrameProcessor]:::processing
-        UploadFrames["<<method>> UploadFrames"]:::processing
-        ColorCorrection["<<kernel>> ColorCorrection"]:::processing
-        Denoise["<<kernel>> Denoise"]:::processing
-        ReadBack["<<method>> ReadBack"]:::processing
+        UploadFrames["«method» UploadFrames"]:::processing
+        ColorCorrection["«kernel» ColorCorrection"]:::processing
+        Denoise["«kernel» Denoise"]:::processing
+        ReadBack["«method» ReadBack"]:::processing
     end
 
     subgraph encoding_group [Encoding]
@@ -321,7 +321,7 @@ graph TD
 ```
 
 > [!NOTE]
-> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations carry stereotype prefixes: `<<function>>` for CPU free functions, `<<method>>` for instance methods, `<<kernel>>` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
+> Components (`FrameDecoder`, `FrameProcessor`, `Encoder`) have plain labels. Operations carry stereotype prefixes: `«function»` for CPU free functions, `«method»` for instance methods, `«kernel»` for GPU kernel launches. Two thick arrows (`==>`) mark the hardware boundary crossings: host-to-device at `UploadFrames` and device-to-host at `ReadBack`. The arrow between `ColorCorrection` and `Denoise` is thin -- data stays on-device.
 
 ---
 
@@ -337,7 +337,7 @@ graph TD
 | **Missing legend** | The diagram uses visual channels without explaining them. The reader guesses at meanings. | Every diagram has a legend immediately below it. |
 | **Unlabeled arrows** | Data flow arrows without labels. The reader cannot tell what data is being transferred. | Every arrow in a data flow diagram must be labeled with the data type or content. |
 | **Operations without ownership** | An operation node appears outside any container and unconnected from any component. The reader cannot tell who invokes it. | Operations must be inside their owning component's container or connected from it. |
-| **Stereotype naming the business function** | `<<validator>>` or `<<parser>>` instead of `<<function>>`. The stereotype describes what the code does, not how it executes. | Stereotypes name the execution mechanism: `<<function>>`, `<<kernel>>`, `<<method>>`. |
+| **Stereotype naming the business function** | `«validator»` or `«parser»` instead of `«function»`. The stereotype describes what the code does, not how it executes. | Stereotypes name the execution mechanism: `«function»`, `«kernel»`, `«method»`. |
 
 ---
 
