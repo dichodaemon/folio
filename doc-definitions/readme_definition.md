@@ -159,7 +159,7 @@ Two subsections:
 
 List only direct dependencies that a consumer transitively inherits by depending on this package. Test-only dependencies (e.g., Google Test, test helpers) are not listed -- they do not affect consumers. Transitive dependencies are not listed -- they are documented in their own packages' READMEs.
 
-When the package has four or more internal dependencies, include an L2 dependency diagram before the tables. The diagram shows this package as an internal node (solid border, grouping color) with dashed external references colored by their owning grouping. Follow the [Visual Vocabulary Standards](../standards/visual-vocabulary_standards.md) for palette, border style, and legend requirements. The diagram orients the reader visually; the tables below it provide the detail (paths, links, purpose). Packages with fewer than four dependencies do not need a diagram -- the table is sufficient.
+When the package has four or more internal dependencies, include an L2 dependency diagram before the tables. The diagram shows this package as an internal node (solid border, subsystem color) with dashed external references colored by their owning subsystem. Follow the [Visual Vocabulary Standards](../standards/visual-vocabulary_standards.md) for palette, border style, and legend requirements. The diagram orients the reader visually; the tables below it provide the detail (paths, links, purpose). Packages with fewer than four dependencies do not need a diagram -- the table is sufficient.
 
 ### 3.6. Build Targets (when more than two targets)
 
@@ -188,7 +188,7 @@ Narrative explanation of the internal structure...
 
 Use this section when the package has non-trivial internal architecture: layers, pipelines, client/server splits, or algorithmic structure that a caller needs to understand. Use subsections (`###`) for distinct layers or components. Include contract and precondition callouts where relevant.
 
-When the section includes a diagram, it must follow the [Visual Vocabulary Standards](../standards/visual-vocabulary_standards.md). Use a detail-level data flow diagram for runtime data flows: components with plain labels, operations with stereotype prefixes (`«kernel»`, `«method»`, `«function»`), thick arrows for hardware boundary crossings, and one level of grouping containment. Every diagram must include a legend. The diagram supplements the prose -- it does not replace it.
+When the section includes a diagram, it must follow the [Visual Vocabulary Standards](../standards/visual-vocabulary_standards.md). Use a detail-level data flow diagram for runtime data flows: components with plain labels, operations with stereotype prefixes (`«kernel»`, `«method»`, `«function»`), thick arrows for hardware boundary crossings, and one level of subsystem containment. Every diagram must include a legend. The diagram supplements the prose -- it does not replace it.
 
 Omit this section for simple packages where the API section tells the whole story (e.g., a single-struct POD types package).
 

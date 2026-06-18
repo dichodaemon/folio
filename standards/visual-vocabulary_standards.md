@@ -15,9 +15,9 @@ Architectural diagrams represent software structure at varying levels of detail.
 | L0 | Source file | A single `.h`, `.cc`, `.cu`, `.py`, or equivalent source file. |
 | L1 | Target | A compilation unit: the output of a single build rule (e.g., a `cc_library`, `cuda_library`, `py_library`). Contains one or more L0 files. |
 | L2 | Package | A directory with a build file. Contains one or more L1 targets. |
-| L3+ | Grouping | A named collection of L2 packages or L(N-1) groupings. Defined by the project -- typically by directory structure or a curated mapping. Recursive: a grouping can contain other groupings. |
+| L3+ | Subsystem | A named collection of L2 packages or L(N-1) subsystems. Defined by the project -- typically by directory structure or a curated mapping. Recursive: a subsystem can contain other subsystems. |
 
-Levels L0 through L2 are concrete and universal -- every build system has files, compilation units, and packages. L3+ is project-specific and recursive. A project with a shallow structure may have a single level of grouping. A large monorepo may have groupings of groupings (e.g., "Platform" containing "Networking" and "Storage" groupings, each containing packages).
+Levels L0 through L2 are concrete and universal -- every build system has files, compilation units, and packages. L3+ is project-specific and recursive. A project with a shallow structure may have a single level of subsystem. A large monorepo may have subsystems of subsystems (e.g., "Platform" containing "Networking" and "Storage" subsystems, each containing packages).
 
 The structural hierarchy applies directly to dependency diagrams. Data flow diagrams use a different entity model (section 3.2) but reference the structural hierarchy for containment.
 
@@ -31,20 +31,20 @@ Four visual channels encode architectural information. Their meanings are consis
 
 | Channel | Encodes | Values |
 |---|---|---|
-| **Fill color** | Grouping ownership | Each grouping gets a unique color. All entities belonging to that grouping share its color. |
+| **Fill color** | Subsystem ownership | Each subsystem gets a unique color. All entities belonging to that subsystem share its color. |
 | **Border style** | Scope membership | **Solid** = internal (defined within the diagram's scope). **Dashed** = external reference (defined outside the diagram's scope, shown for context). |
 | **Arrow weight** | Transport mechanism | **Thin** = normal data flow or dependency. **Thick** = hardware boundary crossing (host-to-device or device-to-host transfer). |
 | **Stereotype text** | Execution mechanism | Guillemet-prefixed label on operation nodes (section 3.2.2). Absent on component nodes. |
 
 ### 2.2. Fill Color
 
-Every entity inherits the fill color of its owning grouping. Color assignment must be consistent across all diagrams in a document set -- the same grouping always appears in the same color, whether in a dependency diagram or a data flow diagram.
+Every entity inherits the fill color of its owning subsystem. Color assignment must be consistent across all diagrams in a document set -- the same subsystem always appears in the same color, whether in a dependency diagram or a data flow diagram.
 
 Two tint levels distinguish entities from their containers:
 
 | Element | Tint level | Purpose |
 |---|---|---|
-| Container background | Lighter | Provides a grouping boundary without competing with node fills. |
+| Container background | Lighter | Provides a subsystem boundary without competing with node fills. |
 | Node fill | Darker | Makes nodes visually prominent within their container. |
 
 The specific hex values are not standardized. What matters is the relationship: nodes are visibly darker than their container background, and the hue is consistent.
@@ -56,7 +56,7 @@ Border style has one universal meaning across all diagram types:
 - **Solid border**: the entity is defined within the diagram's scope. It is part of the system being documented.
 - **Dashed border**: the entity is an external reference. It appears in the diagram to show a relationship, but its internals are out of scope.
 
-External reference nodes should also use a muted or gray fill when they do not belong to any grouping shown in the diagram. When the external entity belongs to a grouping that has an assigned color, it should use that grouping's color with a dashed border.
+External reference nodes should also use a muted or gray fill when they do not belong to any subsystem shown in the diagram. When the external entity belongs to a subsystem that has an assigned color, it should use that subsystem's color with a dashed border.
 
 ### 2.4. Arrow Weight
 
@@ -83,23 +83,23 @@ Each dependency diagram operates at one level of the structural hierarchy (secti
 
 | Level | Nodes are | Containers are | Scope |
 |---|---|---|---|
-| L3+ | Groupings | (none) | Full system |
-| L2 | Packages | Grouping | One grouping from the level above |
+| L3+ | Subsystems | (none) | Full system |
+| L2 | Packages | Subsystem | One subsystem from the level above |
 | L1 | Targets | Package | One package from the level above |
 | L0 | Source files | Target | One target from the level above |
 
 At each level:
 
-- **Internal nodes** are the entities within the scope. They have solid borders and the fill color of their owning grouping.
-- **External reference nodes** represent entities outside the scope that participate in a dependency relationship with an internal node. They have dashed borders and the fill color of their own grouping.
+- **Internal nodes** are the entities within the scope. They have solid borders and the fill color of their owning subsystem.
+- **External reference nodes** represent entities outside the scope that participate in a dependency relationship with an internal node. They have dashed borders and the fill color of their own subsystem.
 - **Containers** (when present) group internal nodes by their parent in the hierarchy. One level of containment only -- never nest containers within containers.
 - **Arrows** are thin and uniform. All arrows represent the same relationship (build dependency). There is no arrow weight distinction in dependency diagrams unless hardware boundary crossings are relevant to the dependency structure.
 
 #### 3.1.2. Navigating Levels
 
-Higher-level diagrams provide orientation; lower-level diagrams provide precision. A reader starts at the outermost grouping level to understand the system's coarse structure, then drills into a specific grouping to see its internal package structure, and so on.
+Higher-level diagrams provide orientation; lower-level diagrams provide precision. A reader starts at the outermost subsystem level to understand the system's coarse structure, then drills into a specific subsystem to see its internal package structure, and so on.
 
-Consistency between levels: every edge at level N must be traceable to at least one edge at level N-1. If grouping A depends on grouping B in the L3 diagram, at least one package in A depends on a package in B in the L2 diagram.
+Consistency between levels: every edge at level N must be traceable to at least one edge at level N-1. If subsystem A depends on subsystem B in the L3 diagram, at least one package in A depends on a package in B in the L2 diagram.
 
 #### 3.1.3. Special Edge Styling
 
@@ -144,19 +144,19 @@ Data flow diagrams have two named levels:
 
 | Level | Nodes are | Containers are | When to use |
 |---|---|---|---|
-| **Context** | Groupings | (none) | Orient the reader: which groupings exchange data, and what crosses the boundaries between them. |
-| **Detail** | Components and stereotyped operations | Grouping | Show the transformation chain: how data is produced, transformed, and consumed within and across groupings. |
+| **Context** | Subsystems | (none) | Orient the reader: which subsystems exchange data, and what crosses the boundaries between them. |
+| **Detail** | Components and stereotyped operations | Subsystem | Show the transformation chain: how data is produced, transformed, and consumed within and across subsystems. |
 
-If a detail diagram exceeds approximately 9 process nodes, split it by grouping -- one detail diagram per grouping or per data flow path -- rather than adding a third level. The goal is readability, not completeness in a single diagram.
+If a detail diagram exceeds approximately 9 process nodes, split it by subsystem -- one detail diagram per subsystem or per data flow path -- rather than adding a third level. The goal is readability, not completeness in a single diagram.
 
 #### 3.2.4. Node Kinds
 
-At the context level, nodes are groupings. They follow the same visual conventions as dependency diagram grouping nodes: fill color by grouping, solid border for in-scope, dashed border for external references.
+At the context level, nodes are subsystems. They follow the same visual conventions as dependency diagram subsystem nodes: fill color by subsystem, solid border for in-scope, dashed border for external references.
 
 At the detail level, nodes are either components or operations:
 
-- **Components** are labeled with their name. They have solid borders (or dashed if external) and the fill color of their owning grouping.
-- **Operations** are labeled with a stereotype prefix followed by their name. Methods use `ClassName::MethodName` to identify both the owning component and the operation. They have solid borders and the fill color of their owning grouping. Operations must be visually associated with their owning component -- either placed inside the same container or connected from the component by an arrow.
+- **Components** are labeled with their name. They have solid borders (or dashed if external) and the fill color of their owning subsystem.
+- **Operations** are labeled with a stereotype prefix followed by their name. Methods use `ClassName::MethodName` to identify both the owning component and the operation. They have solid borders and the fill color of their owning subsystem. Operations must be visually associated with their owning component -- either placed inside the same container or connected from the component by an arrow.
 
 #### 3.2.5. Arrow Semantics
 
@@ -167,7 +167,7 @@ Data stores (persistent or cycle-scoped buffers, databases, shared memory region
 
 #### 3.2.6. Containment
 
-Detail-level data flow diagrams use one level of containment: grouping containers holding components and operations. Never nest containers. If a grouping has internal sub-structure that matters, create a separate detail diagram scoped to that grouping.
+Detail-level data flow diagrams use one level of containment: subsystem containers holding components and operations. Never nest containers. If a subsystem has internal sub-structure that matters, create a separate detail diagram scoped to that subsystem.
 
 ---
 
@@ -175,13 +175,13 @@ Detail-level data flow diagrams use one level of containment: grouping container
 
 ### 4.1. Palette Consistency
 
-The same grouping must appear in the same color across every diagram in a document set. A document set is all diagrams within a single document (e.g., an arch-design) and all related documents that a reader is expected to cross-reference (e.g., an arch-design and its companion arch-assessment).
+The same subsystem must appear in the same color across every diagram in a document set. A document set is all diagrams within a single document (e.g., an arch-design) and all related documents that a reader is expected to cross-reference (e.g., an arch-design and its companion arch-assessment).
 
 When a project uses tooling to generate diagrams (e.g., extracting dependency graphs from build files), hand-authored diagrams in companion documents should use the same color assignments as the generated diagrams.
 
 Palette consistency means:
 
-- Same stroke color for the grouping's nodes and container borders.
+- Same stroke color for the subsystem's nodes and container borders.
 - Same fill color derivation (darker for nodes, lighter for containers).
 - Same color regardless of diagram type (dependency or data flow).
 
@@ -197,11 +197,11 @@ Thick arrows mean hardware boundary crossing in every diagram where they appear.
 
 ## 5. Reference Examples
 
-The examples below use a video processing system to illustrate each diagram type. The system has four groupings: Ingest (frame acquisition and decoding), Processing (CPU and GPU transforms), Encoding (output compression), and Core (shared utilities). Examples use mermaid syntax for concreteness.
+The examples below use a video processing system to illustrate each diagram type. The system has four subsystems: Ingest (frame acquisition and decoding), Processing (CPU and GPU transforms), Encoding (output compression), and Core (shared utilities). Examples use mermaid syntax for concreteness.
 
-### 5.1. Dependency Diagram -- Grouping Level (L3)
+### 5.1. Dependency Diagram -- Subsystem Level (L3)
 
-A top-level view showing groupings as nodes with build-time dependency edges. No containers at this level.
+A top-level view showing subsystems as nodes with build-time dependency edges. No containers at this level.
 
 ```mermaid
 graph TD
@@ -223,15 +223,15 @@ graph TD
 ```
 
 > [!NOTE]
-> Nodes represent groupings. Arrows point from dependent to dependency. All nodes have solid borders (all are in scope). Colors are consistent per grouping.
+> Nodes represent subsystems. Arrows point from dependent to dependency. All nodes have solid borders (all are in scope). Colors are consistent per subsystem.
 
 ### 5.2. Dependency Diagram -- Package Level (L2)
 
-A per-grouping view showing packages as nodes inside a grouping container. External references from other groupings appear with dashed borders.
+A per-subsystem view showing packages as nodes inside a subsystem container. External references from other subsystems appear with dashed borders.
 
 ```mermaid
 graph TD
-    subgraph processing_group [Processing]
+    subgraph processing_sub [Processing]
         color_correction[color_correction]:::processing
         denoiser[denoiser]:::processing
         tone_mapper[tone_mapper]:::processing
@@ -250,15 +250,15 @@ graph TD
 
     classDef processing fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
     classDef ext fill:#e0e0e0,stroke:#757575,stroke-width:1px,stroke-dasharray:5 5
-    style processing_group fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style processing_sub fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
 > [!NOTE]
-> Internal packages have solid borders and Processing's green fill. External references have dashed borders and muted gray fill. The container uses a lighter tint of the grouping's color.
+> Internal packages have solid borders and Processing's green fill. External references have dashed borders and muted gray fill. The container uses a lighter tint of the subsystem's color.
 
 ### 5.3. Data Flow Diagram -- Context Level
 
-A high-level view showing data exchange between groupings.
+A high-level view showing data exchange between subsystems.
 
 ```mermaid
 graph TD
@@ -277,20 +277,20 @@ graph TD
 ```
 
 > [!NOTE]
-> Nodes represent groupings. Labeled arrows show what data crosses each boundary. All arrows are thin (no hardware boundary crossings at this level of abstraction). Output is an external entity (dashed border).
+> Nodes represent subsystems. Labeled arrows show what data crosses each boundary. All arrows are thin (no hardware boundary crossings at this level of abstraction). Output is an external entity (dashed border).
 
 ### 5.4. Data Flow Diagram -- Detail Level
 
-A detailed view showing components and stereotyped operations within grouping containers. This example includes a host-to-device transfer highlighted with a thick arrow.
+A detailed view showing components and stereotyped operations within subsystem containers. This example includes a host-to-device transfer highlighted with a thick arrow.
 
 ```mermaid
 graph TD
-    subgraph ingest_group [Ingest]
+    subgraph ingest_sub [Ingest]
         FrameDecoder[FrameDecoder]:::ingest
         ParseMetadata["«function»<br>ParseMetadata"]:::ingest
     end
 
-    subgraph processing_group [Processing]
+    subgraph processing_sub [Processing]
         FrameProcessor[FrameProcessor]:::processing
         UploadFrames["«method»<br>FrameProcessor::UploadFrames"]:::processing
         ColorCorrection["«kernel»<br>ColorCorrection"]:::processing
@@ -298,7 +298,7 @@ graph TD
         ReadBack["«method»<br>FrameProcessor::ReadBack"]:::processing
     end
 
-    subgraph encoding_group [Encoding]
+    subgraph encoding_sub [Encoding]
         Encoder[Encoder]:::encoding
     end
 
@@ -313,9 +313,9 @@ graph TD
     classDef ingest fill:#d7bbe3,stroke:#7b1fa2,stroke-width:2px
     classDef processing fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
     classDef encoding fill:#fde4bd,stroke:#f9a825,stroke-width:2px
-    style ingest_group fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    style processing_group fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style encoding_group fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    style ingest_sub fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style processing_sub fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style encoding_sub fill:#fff8e1,stroke:#f9a825,stroke-width:2px
 ```
 
 > [!NOTE]
@@ -327,9 +327,9 @@ graph TD
 
 | Anti-pattern | Problem | Fix |
 |---|---|---|
-| **Mixed abstraction levels** | A single diagram has grouping-level nodes alongside function-level nodes. The reader cannot tell what level of detail they are looking at. | Each diagram operates at one level. Use separate diagrams for different levels of detail. |
+| **Mixed abstraction levels** | A single diagram has subsystem-level nodes alongside function-level nodes. The reader cannot tell what level of detail they are looking at. | Each diagram operates at one level. Use separate diagrams for different levels of detail. |
 | **Nested containers** | Containers within containers. Layout engines struggle, and the reader loses track of the hierarchy. | One level of containment per diagram. Drill into a separate diagram for finer detail. |
-| **Inconsistent palette** | The same grouping appears in different colors across diagrams. The reader must re-learn the color mapping for each diagram. | Assign colors to groupings once and use them everywhere in the document set. |
+| **Inconsistent palette** | The same subsystem appears in different colors across diagrams. The reader must re-learn the color mapping for each diagram. | Assign colors to subsystems once and use them everywhere in the document set. |
 | **Overloaded border style** | Dashed borders mean "external reference" in one diagram and something else in another. | Dashed borders always mean external reference. Encode other distinctions via stereotypes or arrow weight. |
 | **Dense thick arrows** | Every edge between hardware-accelerated operations is thick. The thick arrows lose their signal value. | Thick arrows are reserved for hardware boundary crossings (H2D/D2H). On-device edges are thin. |
 | **Missing legend** | The diagram uses visual channels without explaining them. The reader guesses at meanings. | Every diagram has a legend immediately below it. |
