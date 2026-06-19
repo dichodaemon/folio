@@ -199,8 +199,8 @@ Omit this section for simple packages where the API section tells the whole stor
 
 Tests cover:
 
-- **Category** -- what this test category verifies.
-- **Category** -- what this test category verifies.
+- [`module_test.cc`](module_test.cc) -- what this test file covers.
+- [`module_integration_test.cc`](module_integration_test.cc) -- what this test file covers.
 
 Run from the dev container:
 
@@ -212,7 +212,7 @@ docker exec -u "$(id -un)" <container> bash -c \
 
 Two parts:
 
-1. **Coverage summary** -- a bulleted list of what the tests cover (parity, edge cases, error paths, performance, etc.). This tells a future contributor what's protected and what gaps exist.
+1. **Coverage summary** -- a bulleted list organized by test file. Each bullet starts with the test file name as a relative link, followed by the categories it covers (parity, edge cases, error paths, performance, etc.). This tells a future contributor what's protected, what gaps exist, and exactly which file to open.
 2. **Run command** -- the exact shell command to run the tests, including the `docker exec` wrapper when running from outside the container. A contributor should be able to copy-paste this and get results.
 
 ### 3.9. Reference Documents (required)
@@ -395,9 +395,10 @@ None.
 
 Tests cover:
 
-- **Trim** -- empty, whitespace-only, leading, trailing, both, no whitespace.
-- **Split** -- empty input, single element, consecutive delimiters, trailing delimiter.
-- **ToLower** -- ASCII letters, digits (unchanged), empty string.
+- [`string_utils_test.cc`](string_utils_test.cc) -- **Trim**: empty,
+  whitespace-only, leading, trailing, both, no whitespace. **Split**: empty
+  input, single element, consecutive delimiters, trailing delimiter.
+  **ToLower**: ASCII letters, digits (unchanged), empty string.
 
 Run from the dev container:
 
