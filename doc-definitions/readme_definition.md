@@ -74,11 +74,11 @@ The lead paragraph is the most important text in the document. A reader who read
 
 | File | Description |
 |---|---|
-| `module.h/.cc` | One-line description of what this file provides. |
-| `module_test.cc` | Unit tests for module. |
+| [`module.h`](module.h) / [`.cc`](module.cc) | One-line description of what this file provides. |
+| [`module_test.cc`](module_test.cc) | Unit tests for module. |
 ```
 
-A table mapping file names to one-line descriptions. This is the package's inventory -- the reader can scan it to understand the package's scope without opening any file. Group related files on a single row when they form a natural pair (e.g., `module.h/.cc`).
+A table mapping file names to one-line descriptions. This is the package's inventory -- the reader can scan it to understand the package's scope without opening any file. Group related files on a single row when they form a natural pair (e.g., `module.h/.cc`). File names must be relative links to the source files so the reader can navigate directly from the table.
 
 For small packages (1-3 files), a bulleted list is acceptable instead of a table.
 
@@ -328,8 +328,8 @@ package extracts those operations into a single shared library.
 
 | File | Description |
 |---|---|
-| `string_utils.h/.cc` | Trim, split, and case-conversion functions. |
-| `string_utils_test.cc` | Unit tests. |
+| [`string_utils.h`](string_utils.h) / [`.cc`](string_utils.cc) | Trim, split, and case-conversion functions. |
+| [`string_utils_test.cc`](string_utils_test.cc) | Unit tests. |
 
 ---
 
