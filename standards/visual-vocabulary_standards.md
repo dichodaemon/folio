@@ -162,6 +162,7 @@ At the detail level, nodes are either components or operations:
 
 - **Thin labeled arrows** represent data flow. The label names the data being transferred (a type, a struct, a concept). Every arrow must have a label.
 - **Thick labeled arrows** represent hardware boundary crossings (H2D or D2H). The label names the data being transferred. Use thick arrows only where the boundary crossing is architecturally significant.
+- **Arrow routing**: Arrows originate at the caller and terminate at the callee. When a component dispatches an operation, the arrow goes from the component to the operation. When an operation produces data that a subsequent operation consumes, and the component orchestrates both, the data routes back through the component: `Operation A → Component → Operation B`. Do not draw `Operation A → Operation B` unless A literally invokes B in the code. The arrow direction encodes call ownership, not data proximity.
 
 Data stores (persistent or cycle-scoped buffers, databases, shared memory regions) may appear as nodes when their presence clarifies the data flow. They are not required. When included, they should be visually distinguished from process nodes (e.g., different shape or annotation).
 
