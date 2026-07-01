@@ -18,8 +18,8 @@ docs/
     briefs/
     specs/
     plans/
-    design-studies/
-    arch-designs/
+|   reports/                    # Point-in-time descriptive surveys with analysis
+|   arch-designs/               # Settled internal architecture of components
   archive/                     # Retired documents (preserving relative path)
 ```
 
@@ -50,8 +50,8 @@ Workflow documents are organized by document type:
 | `workflow/briefs/` | Briefs | [brief_definition.md](../doc-definitions/brief_definition.md) |
 | `workflow/plans/` | Implementation plans | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
 | `workflow/design-studies/` | Design studies | [design-study_definition.md](../doc-definitions/design-study_definition.md) |
+| `workflow/reports/` | Reports | [report_definition.md](../doc-definitions/report_definition.md) |
 | `workflow/arch-designs/` | Architecture designs | [arch-design_definition.md](../doc-definitions/arch-design_definition.md) |
-| `workflow/arch-assessments/` | Architecture assessments | [arch-assessment_definition.md](../doc-definitions/arch-assessment_definition.md) |
 
 ### 1.4. Archive Structure
 
@@ -109,8 +109,7 @@ The last underscore-delimited segment is always the doctype. This is positional,
 | `_arch-assessment` | Workflow | Living measurement of a component's structural health: dependency diagrams, coupling metrics, and findings |
 | `_definition` | Doc-definitions | Defines the format and conventions for a document type |
 | `_standards` | Standards | Defines conventions for a domain or practice |
-| `_cookbook` | Reference | Append-only collection of domain-scoped recipes |
-| `_reference` | Reference | Informative reference material |
+| `_report` | Workflow | Point-in-time descriptive survey with structured analysis and conclusions |
 | `_setup` | Reference | Installation and configuration record |
 
 This set grows only when a genuinely new document type emerges. Before adding a suffix, check whether the document fits an existing type.
@@ -191,7 +190,7 @@ When a document needs to mention an external resource (an upstream standard, a t
 | Domain cookbook | `cookbooks/` | `<domain>_cookbook.md` |
 | Work-framing brief | `workflow/briefs/` | `YYYY-MM-DD_<topic>_brief.md` |
 | Feature specification | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
-| Implementation plan (deprecated) | `workflow/plans/` | `YYYY-MM-DD_<topic>_plan.md` |
+| Descriptive survey/report | `workflow/reports/` | `YYYY-MM-DD_<topic>_report.md` |
 | Design study | `workflow/design-studies/` | `YYYY-MM-DD_<topic>_design-study.md` |
 | Architecture design | `workflow/arch-designs/` | `<topic>_arch-design.md` |
 | Architecture assessment | `workflow/arch-assessments/` | `<component>_arch-assessment.md` |
