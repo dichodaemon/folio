@@ -12,11 +12,11 @@ A README exists to:
 2. **Inventory** -- list the files and their roles so the reader knows what they're looking at without opening every file.
 3. **Instruct** -- show how to depend on, include, and call the package's API.
 4. **Test** -- document what the tests cover and how to run them.
-5. **Link** -- connect the package to its standards, specs, plans, and related packages.
+5. **Link** -- connect the package to its standards, design notes, plans, and related packages.
 
 A README is NOT:
 
-- A spec or plan. If the content describes what to build or how to build it, it belongs in `docs/workflow/` (see [spec-doc_definition.md](spec-doc_definition.md), [impl-plan_definition.md](impl-plan_definition.md)).
+- A design note or plan. If the content describes what to build or how to build it, it belongs in `docs/workflow/` (see [design-note_definition.md](design-note_definition.md), [impl-plan_definition.md](impl-plan_definition.md)).
 - A design study. If the content analyzes alternatives and trade-offs, it belongs in `docs/workflow/design-studies/` (see [design-study_definition.md](design-study_definition.md)).
 - A TODO list. Unresolved improvement ideas belong in a `TODO.md` file, not in the README. A README describes what the code *is*, not what it should become.
 - A tutorial. If the content requires sequential reading or builds on previous sections, it belongs in a skill or a guide.
@@ -222,12 +222,12 @@ Two parts:
 
 | Document | Purpose |
 |---|---|
-| [`<topic>_spec.md`](path/to/spec.md) | Design specification for this package. |
+| [`<topic>_design-note.md`](path/to/design-note.md) | Design note for this package. |
 | [`<topic>_design-study.md`](path/to/design-study.md) | Alternatives analysis and trade-offs. |
 | [`dependency/README.md`](path/to/dependency/README.md) | Upstream dependency. |
 ```
 
-A table linking to documents a reader might need after the README: specs, plans, design studies, upstream dependency READMEs, TODO files. Links point upstream -- to documents this package depends on or was designed from. Do not list downstream consumers; they are responsible for linking back to their own dependencies. Do not list tool-mandated files (e.g., `AGENTS.md`) -- those are discovered by tooling, not by readers following document links. All references should be to documents within the same repository.
+A table linking to documents a reader might need after the README: design notes, plans, design studies, upstream dependency READMEs, TODO files. Links point upstream -- to documents this package depends on or was designed from. Do not list downstream consumers; they are responsible for linking back to their own dependencies. Do not list tool-mandated files (e.g., `AGENTS.md`) -- those are discovered by tooling, not by readers following document links. All references should be to documents within the same repository.
 
 ### 3.10. Table of Contents (when applicable)
 
@@ -306,7 +306,7 @@ A README describes what the code *is*, not what it will become. TODOs, improveme
 | **Stale API signatures** | Code changed but README wasn't updated. Reader writes code against a ghost API. | Update README in the same commit as the API change. |
 | **No lead paragraph** | Reader has to read the whole document to understand what the package does. | Add 1-3 sentences at the top. |
 | **Exhaustive header dump** | API section reproduces the entire header file. Reader drowns in detail. | Show only the types and functions a caller needs. |
-| **Downstream dependent references** | Reference Documents table lists packages that *consume* this package. Creates a maintenance burden: every new consumer requires a README update in the consumed package. | Reference Documents links upstream (dependencies, standards, specs). Downstream consumers are responsible for linking back to their dependencies, not the other way around. |
+| **Downstream dependent references** | Reference Documents table lists packages that *consume* this package. Creates a maintenance burden: every new consumer requires a README update in the consumed package. | Reference Documents links upstream (dependencies, standards, design notes). Downstream consumers are responsible for linking back to their dependencies, not the other way around. |
 | **README in wrong location** | README is not next to the BUILD file, or is inside `docs/`. | Move to the package root. |
 
 ---

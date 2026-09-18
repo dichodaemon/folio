@@ -15,8 +15,8 @@ A plan exists to:
 
 A plan is NOT:
 
-- A spec. A spec covers *what* to build and *why*. A plan covers *how* to build it. Every plan should reference its companion document (see [Specification Document Reference](spec-doc_definition.md)).
-- A design document. If you're still choosing between approaches, you need a spec (with design decisions) or a design study (see [Design Study Definition](design-study_definition.md)), not a plan.
+- A design note. A design note covers *what* to build and *why*, with decisions, rationale, and acceptance criteria. A plan covers *how* to build it. Every plan should reference its companion document (see [Design Note Definition](design-note_definition.md)).
+- A design document. If you're still choosing between approaches, you need a design note (with decisions and acceptance criteria) or a design study (see [Design Study Definition](design-study_definition.md)), not a plan.
 - An arch-design. An arch-design defines what to build (types, contracts, decomposition). A plan defines how to build it (task sequencing, file changes, status tracking). See [Architecture Design Definition](arch-design_definition.md).
 - A brief. A brief documents investigation, analysis, or root cause findings. A plan references a brief; it does not duplicate its content.
 - A post-implementation reference. After the feature ships, the code is the source of truth. Archive the plan; don't maintain it.
@@ -33,7 +33,7 @@ title: <Topic> -- Implementation Plan
 status: draft | approved | issued | archived
 date: YYYY-MM-DD
 author: <git user name>
-spec: <path-to-companion-spec> (optional)
+design-note: <path-to-companion-design-note> (optional)
 arch-design: <path-to-companion-arch-design> (optional)
 brief: <path-to-companion-brief> (optional)
 issue: <Jira ticket, GitHub issue URL, or path to issue document> (optional)
@@ -46,12 +46,12 @@ issue: <Jira ticket, GitHub issue URL, or path to issue document> (optional)
 | `status` | `draft` while planning, `approved` when reviewed and ready for issue creation, `issued` when all tasks are converted to tracker issues, `archived` post-ship. |
 | `date` | Creation date in `YYYY-MM-DD` format. Must be the actual calendar date when the document is created, not copied from another document. Must match the date prefix in the filename. Immutable after creation. |
 | `author` | Who owns this plan. Use `git config user.name`. |
-| `spec` | Optional. Relative path to the companion spec document. |
+| `design-note` | Optional. Relative path to the companion design note document. |
 | `arch-design` | Optional. Relative path to the companion arch-design document. |
 | `brief` | Optional. Relative path to the companion brief (e.g., investigation results, root cause analysis, benchmark findings). |
 | `issue` | Optional. Reference to the tracking ticket (e.g., `PROJ-1234`, `https://github.com/org/repo/issues/42`, or a relative path to a local issue document). Links the plan to whatever triggered the work. |
 
-Every plan must have at least one companion document: `spec`, `arch-design`, `brief`, or `issue`. The plan never duplicates the companion's content -- it references it. Investigation artifacts (root cause analysis, diagnostic evidence, hypothesis logs) belong in a brief, not in the plan.
+Every plan must have at least one companion document: `design-note`, `arch-design`, `brief`, or `issue`. The plan never duplicates the companion's content -- it references it. Investigation artifacts (root cause analysis, diagnostic evidence, hypothesis logs) belong in a brief, not in the plan.
 
 **File naming:** `YYYY-MM-DD_<topic>_plan.md`. E.g., `2026-04-07_build-log-notifier_plan.md`.
 
@@ -171,13 +171,13 @@ One subsection per non-obvious implementation choice. Each states:
 - What was considered
 - Why this choice was made
 
-These are *implementation* decisions, not *design* decisions. The spec's design decisions answer "what approach?"; the plan's design decisions answer "what implementation detail within that approach?"
+These are *implementation* decisions, not *design* decisions. The design note's decisions answer "what approach?"; the plan's design decisions answer "what implementation detail within that approach?"
 
-Example: the spec decides "use a shell wrapper." The plan decides "define it in `~/.bashrc.d/` rather than `/usr/local/bin/` because the dev container rebuilds `/usr/local/` on restart."
+Example: the design note decides "use a shell wrapper." The plan decides "define it in `~/.bashrc.d/` rather than `/usr/local/bin/` because the dev container rebuilds `/usr/local/` on restart."
 
 ### 2.7. Success Criteria (required)
 
-Per-component checklist of observable pass/fail conditions. These are more granular than the spec's acceptance criteria -- they verify each implementation step, not just the end-to-end behavior.
+Per-component checklist of observable pass/fail conditions. These are more granular than the design note's acceptance criteria -- they verify each implementation step, not just the end-to-end behavior.
 
 ```markdown
 ### TokenBucket struct
@@ -193,21 +193,21 @@ When all success criteria are verified, the plan is ready for approval. Each cri
 
 ### 2.8. Document Staleness Audit (required)
 
-Implementation work changes the codebase. Existing documents -- specs, arch-designs, READMEs, cookbooks -- may describe behavior or interfaces that the plan's changes invalidate. The plan must identify these documents and include tasks to update or archive them.
+Implementation work changes the codebase. Existing documents -- design notes, arch-designs, READMEs, cookbooks -- may describe behavior or interfaces that the plan's changes invalidate. The plan must identify these documents and include tasks to update or archive them.
 
 **Procedure:**
 
-1. List every companion and related document (specs, arch-designs, briefs, READMEs) that describe the types, interfaces, or behaviors the plan modifies.
+1. List every companion and related document (design notes, arch-designs, briefs, READMEs) that describe the types, interfaces, or behaviors the plan modifies.
 2. For each document, state whether the plan's changes invalidate any of its content.
 3. If invalidated: add a task to the implementation status table (section 2.2) to update or archive the document. Place it in the last implementation phase or in a dedicated "Documentation" phase.
-4. If not invalidated: state why (e.g., "spec describes the interface contract, which is unchanged; only the internal implementation changes").
+4. If not invalidated: state why (e.g., "the design note describes the interface contract, which is unchanged; only the internal implementation changes").
 
 ````markdown
 ### Documents reviewed
 
 | Document | Invalidated? | Action |
 |---|---|---|
-| `../specs/2026-04-13_pull-over-on-shoulder_spec.md` | Yes -- section 3 "Reference spline" decision is superseded. | Task 5.6: update spec design decisions table. |
+| `../design-notes/2026-04-13_pull-over-on-shoulder_design-note.md` | Yes -- the "Reference spline" decision is superseded. | Task 5.6: update the design note's Decisions section. |
 | `../arch-designs/behavior-planner_arch-design.md` | No -- arch-design describes the ManeuverDescriptor contract, which is unchanged. | None. |
 | `../../planning/sampling/README.md` | Yes -- describes ego-lane-only reference spline assumption. | Task 5.7: update README sampling overview. |
 ````
@@ -233,7 +233,7 @@ Cleanup is a deliverable, not an afterthought. The plan is not complete until di
 - **Validation is stated in terms of observable artifacts** (log lines, topic values, test output), not "it should work."
 - **Cleanup is explicit.** Any instrumentation added during the work is tracked and resolved (section 2.9).
 - **Inline code uses full signatures**, not pseudocode fragments. The reader should be able to grep the codebase and find the exact location.
-- **The plan references its companion document** (spec, arch-design, brief, or issue). It never duplicates the companion's objective, non-goals, or investigation findings.
+- **The plan references its companion document** (design note, arch-design, brief, or issue). It never duplicates the companion's objective, non-goals, or investigation findings.
 
 ---
 
@@ -295,8 +295,8 @@ The `in-progress` and `complete` statuses from the pre-issue-tracking workflow a
 
 | Anti-pattern | Problem | Fix |
 |---|---|---|
-| **Plan without companion document** | No agreement on *what* to build or *why*; the plan is implementing assumptions. | Write a spec, arch-design, or brief first. The plan references it. |
-| **Plan as spec** | Mixes "what to build" with "how to build it." Objective, non-goals, and acceptance criteria are embedded in the plan. | Split into spec (what/why) and plan (how). |
+| **Plan without companion document** | No agreement on *what* to build or *why*; the plan is implementing assumptions. | Write a design note, arch-design, or brief first. The plan references it. |
+| **Plan as design note** | Mixes "what to build" with "how to build it." Objective, non-goals, and acceptance criteria are embedded in the plan. | Split into design note (what/why) and plan (how). |
 | **Investigation in the plan** | Root cause analysis, diagnostic evidence, and hypothesis logs embedded in the plan instead of a brief. | Write a brief for the investigation. The plan references it via the `brief` metadata field. |
 | **Pseudocode plan** | Solution breakdown uses invented syntax instead of real signatures and types. Implementer can't find the code. | Use real function names, real types, real file paths. |
 | **Missing cleanup** | Debug logs and temporary instrumentation ship to production. | Add a cleanup section (section 2.9). Don't mark the work done until it's resolved. |

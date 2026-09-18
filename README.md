@@ -12,7 +12,7 @@ container and OMP framework).
 
 | File | Description |
 |---|---|
-| `doc-definitions/` | Format and structural requirements for each document type (specs, plans, design studies, briefs, cookbooks, READMEs). |
+| `doc-definitions/` | Format and structural requirements for each document type (design notes, plans, design studies, briefs, cookbooks, READMEs). |
 | `standards/` | Conventions governing documentation and OMP configuration practices. |
 | `references/` | Factual reference material (OMP configuration, tool setup). |
 | `docs/` | Folio's own workflow documents (design studies about the framework itself). |
@@ -29,7 +29,8 @@ starting:
 
 | I'm writing a... | Read this first |
 |---|---|
-| Feature specification | `doc-definitions/spec-doc_definition.md` |
+| Design note | `doc-definitions/design-note_definition.md` |
+| Feature specification (deprecated) | `doc-definitions/spec-doc_definition.md` |
 | Implementation plan | `doc-definitions/impl-plan_definition.md` |
 | Design study | `doc-definitions/design-study_definition.md` |
 | Brief | `doc-definitions/brief_definition.md` |

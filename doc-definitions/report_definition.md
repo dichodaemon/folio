@@ -202,7 +202,7 @@ Conclusions are the synthesis layer: patterns, trade-offs, assessments, and pers
 |---|---|
 | **Brief** | A report may be cited as a source in a brief. The brief frames work; the report provides the evidence landscape that motivated it. |
 | **Design study** | A report may be the primary evidence base for a design study. The study's Sources section references the report; the study's evaluation draws on the report's findings and conclusions. |
-| **Spec** | A report does not directly feed a spec. The chain is: report → design study → spec (or arch-design) → plan. |
+| **Design note** | A report does not directly feed a design note. The chain is: report → design study → design note (or arch-design) → plan. |
 | **Reference** | A report and a reference both capture facts. A reference is maintained; a report is a snapshot. When facts from a report prove durable, extract them into a reference. |
 | **Cookbook** | Practical discoveries during research (tool quirks, workarounds) belong in a cookbook entry, not in the report. |
 

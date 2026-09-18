@@ -14,9 +14,10 @@ docs/
   standards/                    # Conventions and standards for practices
   references/                  # Records facts, configurations, practical knowledge
   cookbooks/                   # Domain-scoped append-only recipe collections
-  workflow/                    # Briefs, specs, plans, design studies, and arch-designs
+  workflow/                    # Briefs, design notes, plans, design studies, and arch-designs
     briefs/
-    specs/
+    design-notes/
+    specs/                      # deprecated — reading existing specs only
     plans/
 |   reports/                    # Point-in-time descriptive surveys with analysis
 |   arch-designs/               # Settled internal architecture of components
@@ -33,7 +34,7 @@ Each top-level directory corresponds to a document role. Role is the primary org
 | `standards/` | Standards | Documents that define conventions, standards, and best practices for practices or domains. Normative over how we work. | Document format definitions (those go in `doc-definitions/`). |
 | `references/` | Reference | Reference material that records facts, configurations, and practical knowledge. Informative. | Cookbooks (they have their own directory). Component-level docs (they stay local). |
 | `cookbooks/` | Reference (special form) | Domain-scoped, append-only recipe collections following the cookbook format. | Any document that isn't a cookbook. One file per domain, named `<domain>_cookbook.md`. |
-| `workflow/` | Workflow | Artifacts of development workflows: briefs, specs, plans, design studies, arch-designs. Documents with a lifecycle. | Permanent reference material. Documents without a lifecycle. |
+| `workflow/` | Workflow | Artifacts of development workflows: briefs, design notes, plans, design studies, arch-designs. Documents with a lifecycle. | Permanent reference material. Documents without a lifecycle. |
 | `archive/` | Retired | Documents that have completed their lifecycle. | Active documents. Do not edit archived documents; write new ones instead. |
 
 ### 1.2. Cookbooks as a Separate Directory
@@ -46,7 +47,8 @@ Workflow documents are organized by document type:
 
 | Subdirectory | Document type | Definition |
 |---|---|---|
-| `workflow/specs/` | Specifications | [spec-doc_definition.md](../doc-definitions/spec-doc_definition.md) |
+| `workflow/specs/` | Specifications — **deprecated** | [spec-doc_definition.md](../doc-definitions/spec-doc_definition.md) |
+| `workflow/design-notes/` | Design notes | [design-note_definition.md](../doc-definitions/design-note_definition.md) |
 | `workflow/briefs/` | Briefs | [brief_definition.md](../doc-definitions/brief_definition.md) |
 | `workflow/plans/` | Implementation plans | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
 | `workflow/design-studies/` | Design studies | [design-study_definition.md](../doc-definitions/design-study_definition.md) |
@@ -81,11 +83,13 @@ Every document filename follows a single pattern:
 
 | Component | Required | Description | Example |
 |---|---|---|---|
-| `<date>` | Most workflow | Creation date in `YYYY-MM-DD` format. Present on workflow documents that are point-in-time artifacts (briefs, specs, plans, design studies). Absent on doc-definitions, standards, references, and arch-designs (which are living documents maintained indefinitely). | `2026-04-07` |
+| `<date>` | Most workflow | Creation date in `YYYY-MM-DD` format. Present on workflow documents that are point-in-time artifacts (briefs, design notes, plans, design studies). Absent on doc-definitions, standards, references, and arch-designs (which are living documents maintained indefinitely). | `2026-04-07` |
 | `<topic>` | Yes | Kebab-case description of the document's subject. For cookbooks, this is the domain name. | `auth-token-refresh`, `omp-configuration`, `docker` |
 | `<doctype>` | Yes | Document type from the closed suffix inventory (section 2.3). | `spec`, `plan`, `definition`, `cookbook` |
 
-**Date convention:** The `<date>` component must be the actual calendar date when the document is created. Do not copy the date from an existing document or template. The date in the filename and the `date` field in the document's YAML metadata must match and must both reflect the true creation date. This date is immutable after creation -- it does not change when the document is updated.
+**Date convention:** The `<date>` component must be the actual calendar date when the document is created. Do not copy the date from an existing document or template. The date in the filename and the `date` field in the document's YAML metadata must match and must both reflect the true creation date. This date is immutable after creation — it does not change when the document is updated.
+
+**Point-in-time is provenance, not mutability.** A date-prefixed document is "point-in-time" because its creation date is fixed in the filename and metadata — not because its content is frozen from the moment it is written. Workflow documents with a lifecycle (briefs, design notes, plans, design studies) are expected to be edited and refined throughout their pre-acceptance phases; that refinement is the purpose of the lifecycle, and an agent must not treat a pre-acceptance edit as a violation. The document freezes only at the acceptance transition defined by its document definition (`approved` for a plan, `resolved` for a design study, `accepted` for a brief or design note). The immutable `date` records when the document was created; it does not record, and does not constrain, content changes made before acceptance. Briefs and design notes carry the minimal `draft → accepted` lifecycle, so their freeze point is `accepted`. Briefs written before this change carry no `status` field and are treated as accepted.
 
 ### 2.2. Separator Rule
 
@@ -101,8 +105,9 @@ The last underscore-delimited segment is always the doctype. This is positional,
 
 | Suffix | Role | Description |
 |---|---|---|
-| `_brief` | Workflow | Short orientation document that frames work before committing to a spec or plan |
-| `_spec` | Workflow | Feature specification |
+| `_brief` | Workflow | Short orientation document that frames work before committing to a design note or plan |
+| `_design-note` | Workflow | Settled design for a scoped piece of work: decisions, rationale, interface outline, acceptance criteria. See [design-note_definition.md](../doc-definitions/design-note_definition.md). |
+| `_spec` | Workflow | Feature specification — **deprecated** (use a design note). Retained for reading existing specs. |
 | `_plan` | Workflow | Implementation plan. Converted to issue tracker issues on approval. See [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md). |
 | `_design-study` | Workflow | Structured analysis of a problem space with alternatives and evaluation |
 | `_arch-design` | Workflow | Settled internal architecture of a component, library, or subsystem |
@@ -136,7 +141,7 @@ The `docs/` tree holds documents where centralization wins. Component-level docu
 |---|---|---|
 | **Component** | In the component's directory | README next to source, API docs, component architecture |
 | **Subsystem** | At the lowest common ancestor of the directories it spans | `rendering/docs/` for a doc spanning `rendering/scene_graph/`, `rendering/shader_pipeline/`, `rendering/layout_engine/` |
-| **Cross-workspace or repo** | In the central `docs/` tree | Specs, plans, design studies, doc-definitions, standards, cross-cutting references, cookbooks |
+| **Cross-workspace or repo** | In the central `docs/` tree | Design notes, plans, design studies, doc-definitions, standards, cross-cutting references, cookbooks |
 
 The rule: **a document lives at the narrowest scope that contains everything it describes.**
 
@@ -157,11 +162,11 @@ For the full format specification, see [readme_definition.md](../doc-definitions
 
 ### 3.4. Workflow Subdivision by Domain
 
-Workflow directories (`briefs/`, `specs/`, `plans/`, `design-studies/`) start flat. Subdivide by domain when a directory exceeds ~30-50 files with active contributions from multiple domains.
+Workflow directories (`briefs/`, `design-notes/`, `specs/`, `plans/`, `design-studies/`) start flat. Subdivide by domain when a directory exceeds ~30-50 files with active contributions from multiple domains.
 
 When subdividing:
 
-1. **Subdivide all workflow subdirectories together.** If `specs/` gets domain subdirectories, `briefs/`, `plans/`, and `design-studies/` should too. Inconsistent structure within `workflow/` is worse than slightly empty directories.
+1. **Subdivide all workflow subdirectories together.** If `specs/` gets domain subdirectories, `briefs/`, `design-notes/`, `plans/`, and `design-studies/` should too. Inconsistent structure within `workflow/` is worse than slightly empty directories.
 2. **Domain names match the repo's top-level structure.** In a monorepo with `frontend/`, `backend/`, `platform/` workspaces, the domain subdirectories mirror those names. In a single-purpose repo, domains might be functional areas or tool names.
 3. **The trigger is observable friction, not anticipated growth.** Do not create domain subdirectories preemptively.
 
@@ -174,7 +179,7 @@ This rule exists because external references create invisible dependencies: when
 
 When a document needs to mention an external resource (an upstream standard, a third-party API reference, a sibling repo's conventions), describe the concept inline and note where the authoritative source lives. Do not hyperlink it as though it were a stable part of this documentation set.
 
-**Doc-definitions vs produced documents.** Doc-definition files (those in `doc-definitions/`) include a "Governing Standards" footer linking back to this standards document -- this helps agents and readers gather the full context for the documentation system. Documents *produced from* those definitions (actual READMEs, actual specs, actual cookbooks, etc.) must not include such a footer or reference this standards document. The definitions are the bridge between the standards and the produced documents; produced documents should not reach past their definition.
+**Doc-definitions vs produced documents.** Doc-definition files (those in `doc-definitions/`) include a "Governing Standards" footer linking back to this standards document -- this helps agents and readers gather the full context for the documentation system. Documents *produced from* those definitions (actual READMEs, actual design notes, actual cookbooks, etc.) must not include such a footer or reference this standards document. The definitions are the bridge between the standards and the produced documents; produced documents should not reach past their definition.
 ---
 
 ## 4. Quick Reference
@@ -189,7 +194,8 @@ When a document needs to mention an external resource (an upstream standard, a t
 | Tool/environment setup record | `references/` | `<topic>_setup.md` |
 | Domain cookbook | `cookbooks/` | `<domain>_cookbook.md` |
 | Work-framing brief | `workflow/briefs/` | `YYYY-MM-DD_<topic>_brief.md` |
-| Feature specification | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
+| Feature specification (deprecated) | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
+| Design note | `workflow/design-notes/` | `YYYY-MM-DD_<topic>_design-note.md` |
 | Descriptive survey/report | `workflow/reports/` | `YYYY-MM-DD_<topic>_report.md` |
 | Design study | `workflow/design-studies/` | `YYYY-MM-DD_<topic>_design-study.md` |
 | Architecture design | `workflow/arch-designs/` | `<topic>_arch-design.md` |

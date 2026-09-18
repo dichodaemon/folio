@@ -8,15 +8,15 @@ Reference for writing cookbook documents. A cookbook is a flat collection of sta
 
 A cookbook exists to:
 
-1. **Capture** — record practical findings that don't belong in a spec, plan, or reference doc but are too useful to lose.
+1. **Capture** — record practical findings that don't belong in a design note, plan, or reference doc but are too useful to lose.
 2. **Answer quickly** — each entry should take a reader from "I have this problem" to "here's the command" in under 30 seconds.
 3. **Accumulate** — entries are appended over time as new findings emerge. The document grows but never needs restructuring.
 
 A cookbook is NOT:
 
 - A reference manual. If the topic needs subsections, tables of options, or exhaustive coverage, it belongs in a dedicated reference doc.
-- A tutorial or guide. If the content requires sequential reading or builds on previous sections, it belongs in a skill or a spec.
-- A plan or spec. If the content describes what to build or how to build it, it belongs in those documents (see [Specification Document Reference](spec-doc_definition.md), [Implementation Plan Reference](impl-plan_definition.md)).
+- A tutorial or guide. If the content requires sequential reading or builds on previous sections, it belongs in a skill or a design note.
+- A plan or design note. If the content describes what to build or how to build it, it belongs in those documents (see [Design Note Definition](design-note_definition.md), [Implementation Plan Reference](impl-plan_definition.md)).
 
 ---
 

@@ -16,7 +16,7 @@ An arch-design exists to:
 An arch-design is NOT:
 
 - A design study. See [Design Study Definition](design-study_definition.md).
-- A spec. See [Specification Document Definition](spec-doc_definition.md).
+- A design note. A design note is scoped to one piece of work and point-in-time; an arch-design is the whole component, living. See [Design Note Definition](design-note_definition.md).
 - An implementation plan. See [Implementation Plan Definition](impl-plan_definition.md).
 - A code dump. Code in the document is structural -- it shows the shape, fields, relationships, and behavioral contracts of the design.
 
@@ -426,6 +426,8 @@ Open questions may exist while the document is in `draft` status. Each question 
 
 **Anti-pattern: open questions surviving past `draft` status. Resolve and delete before advancing to `review`.**
 
+Open questions are for what cannot yet be verified, not for what has not yet been decided. A question may remain open only when the aspect cannot be verified at the time of writing (e.g., hardware not available, an external system not yet observable). Anything resolvable by design must be resolved before the document is written and folded into its regular structure — open questions are not a backdoor for postponing design work.
+
 **General anti-patterns:**
 
 - **Arch-design as plan**: includes task breakdowns, sequencing, or status tracking. Split into arch-design (what to build) and plan (how to build it).
@@ -462,7 +464,7 @@ Open questions may exist while the document is in `draft` status. Each question 
 | Document type | Relationship |
 |---|---|
 | **Design study** | An arch-design may be produced from a design study. The study records the reasoning; the arch-design records the settled result. The `design-study` metadata field links them. When no study exists, the Design Decisions section provides inline rationale. |
-| **Spec** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the spec. For features where only the external contract matters (CLI tools, API endpoints, configuration changes), use a spec instead. Both document types can coexist for complex features with distinct external and internal concerns. |
+| **Design note** | For library and subsystem work where the internal architecture IS the interface, the arch-design subsumes the design note. For scoped pieces of work where the design is a set of decisions (CLI tools, API endpoints, configuration changes), use a design note instead. Both document types can coexist for complex features with distinct external and internal concerns. |
 | **Implementation plan** | A plan may reference an arch-design as its companion. The arch-design defines what to build (types, contracts, decomposition); the plan sequences how to build it (task ordering, file changes, status tracking). See [Implementation Plan Definition](impl-plan_definition.md). |
 | **Brief** | A brief may identify that an arch-design is needed. The brief frames the work; the arch-design (possibly after a design study) settles the architecture. |
 | **Cookbook** | If an arch-design surfaces practical implementation findings (tool quirks, workarounds, patterns), those belong in a cookbook entry, not in the arch-design. |

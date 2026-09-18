@@ -1,5 +1,12 @@
 # Specification Document Definition
 
+> **Deprecated.** Specs are not in use and are being retired. Do not write new specs.
+> For a scoped piece of work with design decisions and acceptance criteria, write a
+> [design note](design-note_definition.md). For the settled internal architecture of a
+> component, write an [arch-design](arch-design_definition.md). For the reasoning behind
+> a decision, write a [design study](design-study_definition.md). This definition is
+> retained only for reading existing specs.
+
 Reference for writing specification documents. A spec is a commitment document. It answers: what are we building, for whom, and what does done look like? It should survive the implementation and remain useful after the feature ships -- as context for future changes, as input for agents generating related code, and as a record of what was decided and why.
 
 ---
@@ -151,6 +158,8 @@ Each question should state:
 Open questions are not a parking lot for vague concerns. Each one should be specific enough that someone could answer it in a sentence or a short investigation.
 
 When a question is resolved, move the answer to the relevant section (Design Decisions, Solution, or Acceptance Criteria) and remove it from this list. An approved spec should have zero open questions.
+
+Open questions are for what cannot yet be verified, not for what has not yet been decided. A question may remain open only when the aspect cannot be verified at the time of writing (e.g., hardware not available, an external system not yet observable). Anything resolvable by specification work must be resolved before the spec is written and folded into its regular structure — open questions are not a backdoor for postponing specification work.
 
 ### 2.9. References (when applicable)
 

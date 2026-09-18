@@ -16,7 +16,7 @@ A design study exists to:
 
 A design study is NOT:
 
-- A spec. A spec is a commitment document -- it records what will be built and what done looks like. A design study precedes commitment: it works through the problem space to inform a decision. See [Specification Document Reference](spec-doc_definition.md).
+- A design note. A design note is a commitment document -- it records the settled decisions and acceptance criteria for a scoped piece of work. A design study precedes commitment: it works through the problem space to inform a decision. See [Design Note Definition](design-note_definition.md).
 - An arch-design. An arch-design records the settled internal architecture of a component -- types, contracts, decomposition. A design study precedes the arch-design: it works through the problem space; the arch-design records the result. See [Architecture Design Definition](arch-design_definition.md).
 - An implementation plan. A plan covers how to build a decided-upon solution. A design study covers which solution to choose. See [Implementation Plan Reference](impl-plan_definition.md).
 - A decision log. A decision log records conclusions ("we chose X because Y"). A design study records the analysis that produced the conclusion -- the dimensions, the alternatives, the evaluation. If the reasoning doesn't matter, a decision log entry is sufficient; if it does, write a design study.
@@ -106,11 +106,13 @@ Numbered list of unresolved questions that affect the recommendation. Each quest
 
 When a question is resolved, move the answer to the relevant dimension or evaluation section and mark the question resolved (strikethrough with the resolution noted). A resolved design study should have zero open questions.
 
+Open questions are for what cannot yet be verified, not for what has not yet been decided. A question may remain open only when the aspect cannot be verified at the time of writing (e.g., hardware not available, an external system not yet observable). Anything resolvable by analysis or design must be resolved before the study is written and folded into its regular structure — open questions are not a backdoor for postponing design work.
+
 ### 2.8. Deliverables (required)
 
 Explicit list of what this study produces. A design study is not an end in itself -- it feeds other documents or actions. Name them:
 
-- Which specs, doc-definitions, standards, or configuration changes will be created from the conclusions?
+- Which design notes, arch-designs, doc-definitions, standards, or configuration changes will be created from the conclusions?
 - Which existing documents will be updated?
 
 This section is the contract between the study and the rest of the system. It prevents studies from becoming permanent drafts with no clear output.
@@ -135,7 +137,7 @@ Individual dimensions are easy to analyze. The value of a design study is in sur
 
 ### 3.4. Reasoning Over Conclusions
 
-A spec records conclusions. A design study records reasoning. When writing, optimize for the reader who needs to understand *why*, not just *what*. If a future maintainer faces a similar problem in a different context, the decomposition and evaluation framework should be reusable even if the specific recommendation doesn't apply.
+A design note records conclusions. A design study records reasoning. When writing, optimize for the reader who needs to understand *why*, not just *what*. If a future maintainer faces a similar problem in a different context, the decomposition and evaluation framework should be reusable even if the specific recommendation doesn't apply.
 
 ### 3.5. Converge or Explain Why Not
 
@@ -149,12 +151,12 @@ A design study should end with a recommendation or an explicit list of what prev
 |---|---|---|
 | `draft` | Actively working through the problem space. Dimensions may be added or restructured. | Everything. |
 | `review` | Analysis is complete. Recommendation is stated. Ready for feedback. | Evaluation and recommendation may be refined based on feedback. Dimensions are stable. |
-| `resolved` | Decisions have been extracted into their deliverables (specs, doc-definitions, standards, etc.). | Nothing -- study is frozen. Deliverables section should list the resulting documents with links. |
+| `resolved` | Decisions have been extracted into their deliverables (design notes, arch-designs, doc-definitions, standards, etc.). | Nothing -- study is frozen. Deliverables section should list the resulting documents with links. |
 | `archived` | Deliverables have been implemented. The study is a historical record. | Nothing. Do not update. If circumstances change enough to revisit the decisions, write a new study. |
 
 The transition from `resolved` to `archived` happens when the deliverables are implemented and live. An archived study is a historical record of how a decision was reached, not a living document.
 
-**Key difference from specs:** A spec transitions through `approved` → `implemented` because the spec itself is the commitment that gets implemented. A design study transitions through `resolved` → `archived` because the study produces other documents (specs, doc-definitions, standards) that carry the commitment. The study's job is done when those documents exist.
+**Key difference from design notes:** A design note transitions `draft` → `accepted` because the note itself is the commitment that gets implemented. A design study transitions through `resolved` → `archived` because the study produces other documents (design notes, arch-designs, doc-definitions, standards) that carry the commitment. The study's job is done when those documents exist.
 
 ---
 
@@ -166,7 +168,7 @@ The transition from `resolved` to `archived` happens when the deliverables are i
 | **Dimension without options** | Names a dimension ("scope") but doesn't enumerate concrete alternatives within it. | Each dimension needs at least two concrete options with examples. If there's only one viable choice, it's a constraint, not a dimension. |
 | **Abstract evaluation** | "Option A is better for large repos." Better how? By what measure? | State criteria explicitly. Use a comparison matrix. Ground claims in concrete examples or evidence. |
 | **Permanent draft** | Study stays in `draft` indefinitely with no deliverables produced. | The deliverables section forces accountability. If no deliverables emerge, either the study wasn't needed or the open questions need to be resolved. |
-| **Study as spec** | Study includes acceptance criteria, implementation steps, or commitments. | A study recommends; a spec commits. Extract conclusions into a spec or doc-standard. The study references its deliverables. |
+| **Study as design note** | Study includes acceptance criteria, implementation steps, or commitments. | A study recommends; a design note commits. Extract conclusions into a design note or doc-standard. The study references its deliverables. |
 | **Missing interactions** | Dimensions are analyzed in isolation. The composed options section is absent despite significant cross-dimension effects. | If choosing X in dimension A constrains what's viable in dimension B, that interaction must be documented explicitly. |
 | **Conclusion without trail** | States a recommendation without the reasoning chain from dimensions through evaluation. | Every recommendation should be traceable: "We chose X because of criterion Y, which follows from dimension Z." |
 
@@ -176,10 +178,10 @@ The transition from `resolved` to `archived` happens when the deliverables are i
 
 | Document type | Relationship |
 |---|---|
-| **Spec** | A design study may produce a spec as a deliverable. The spec records the committed decision; the study records the analysis that led to it. The spec's Design Decisions section can reference the study for full rationale. |
-| **Arch-design** | A design study may produce an arch-design as a deliverable. The arch-design records the settled internal architecture; the study records the reasoning that produced it. For library and subsystem work, the arch-design subsumes the spec as the primary deliverable. See [Architecture Design Definition](arch-design_definition.md). |
+| **Design note** | A design study may produce a design note as a deliverable. The note records the committed decision; the study records the analysis that led to it. The note's Decisions section can reference the study for full rationale. |
+| **Arch-design** | A design study may produce an arch-design as a deliverable. The arch-design records the settled internal architecture; the study records the reasoning that produced it. For library and subsystem work, the arch-design subsumes the design note as the primary deliverable. See [Architecture Design Definition](arch-design_definition.md). |
 | **Doc-standard** | A design study may produce a doc-standard as a deliverable (e.g., a study of document organization produces a doc-standard for directory structure). |
-| **Implementation plan** | A design study does not directly produce a plan. The chain is: study -> arch-design (or spec) -> plan. The plan sequences the implementation of the architecture or spec that the study informed. See [Implementation Plan Definition](impl-plan_definition.md). |
+| **Implementation plan** | A design study does not directly produce a plan. The chain is: study -> arch-design (or design note) -> plan. The plan sequences the implementation of the architecture or design note that the study informed. See [Implementation Plan Definition](impl-plan_definition.md). |
 | **Cookbook** | If a study surfaces practical findings along the way (tool quirks, workarounds), those belong in a cookbook entry, not in the study. |
 
 ---
@@ -271,8 +273,8 @@ Revocable. Requires Redis or equivalent for token lookup and blocklist. More inf
 
 ## 5. Deliverables
 
-- [ ] Spec: `2026-04-10_stateless-auth_spec.md` -- commits to JWT + short-lived + refresh rotation.
-- [ ] Plan: implementation plan derived from the spec.
+- [ ] Design note: `2026-04-10_stateless-auth_design-note.md` -- commits to JWT + short-lived + refresh rotation.
+- [ ] Plan: implementation plan derived from the design note.
 ````
 
 
