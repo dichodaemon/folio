@@ -78,6 +78,7 @@ The core of the note. One entry per decision. Each entry has:
 
 - **Decision** -- the settled choice, stated concretely.
 - **Rationale** -- the conceptual explanation. This is the most important content: why this choice, at the level of ideas, above the code. What constraint, property, or fact makes it correct, and what would have to change for it to be revisited.
+- **Risks** (when applicable) -- the residual downsides, edge cases, and failure modes of the decision as chosen. These are known and accepted, not unresolved: options considered and rejected belong in **Alternatives**; things that must still be verified or answered belong in Open Questions (§3.8). Omit when the decision carries none.
 - **Alternatives** -- the rejected options, one line each with the deciding factor.
 
 ```markdown
@@ -91,6 +92,12 @@ it as the key breaks the moment tuning, transpose, or per-note pitch bend
 exists -- a note-on and its note-off can then legitimately map to different
 frequencies. The note number is the stable identity; frequency is computed
 from it at note-on and carried for rendering.
+
+**Risks:**
+
+- The note-identity contract must reach every call site; a caller that still
+  matches on frequency re-introduces the stuck-note bug the moment tuning or
+  transpose lands.
 
 **Alternatives:**
 
@@ -137,6 +144,8 @@ The order of work -- a short numbered list or paragraph. Not a plan: no task bre
 Questions that must be answered before or during the work. Each states the question and what it blocks. An accepted note should have zero open questions -- resolve them and delete this section before marking `accepted`.
 
 Open questions are for what cannot yet be verified, not for what has not yet been decided. A question may remain open only when the aspect cannot be verified at the time of writing (e.g., hardware not available, an external system not yet observable). Anything resolvable by design must be resolved before the note is written and folded into its regular structure -- open questions are not a backdoor for postponing design work.
+
+Known, accepted downsides of a settled decision belong in Risks (§3.4), not here: a risk is a downside the decision stands despite; an open question is an aspect that must still be answered before the work is done.
 
 ---
 
@@ -209,6 +218,10 @@ match note-off on `(part, note)`.
 Tuning, transpose, or per-note pitch bend breaks a frequency key outright --
 the note-on and note-off can map to different frequencies. The note number is
 the stable identity.
+
+**Risks:**
+
+- A caller that still matches on frequency re-introduces the stuck-note bug.
 
 **Alternatives:**
 
