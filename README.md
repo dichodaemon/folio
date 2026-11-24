@@ -34,6 +34,7 @@ starting:
 | Implementation plan | `doc-definitions/impl-plan_definition.md` |
 | Design study | `doc-definitions/design-study_definition.md` |
 | Brief | `doc-definitions/brief_definition.md` |
+| Change review | `doc-definitions/review_definition.md` |
 | Cookbook entry | `doc-definitions/cookbook_definition.md` |
 | README | `doc-definitions/readme_definition.md` |
 

@@ -20,6 +20,7 @@ docs/
     specs/                      # deprecated — reading existing specs only
     plans/
 |   reports/                    # Point-in-time descriptive surveys with analysis
+|   reviews/                    # Point-in-time assessments of one change, with recommendations
 |   arch-designs/               # Settled internal architecture of components
   archive/                     # Retired documents (preserving relative path)
 ```
@@ -53,6 +54,7 @@ Workflow documents are organized by document type:
 | `workflow/plans/` | Implementation plans | [impl-plan_definition.md](../doc-definitions/impl-plan_definition.md) |
 | `workflow/design-studies/` | Design studies | [design-study_definition.md](../doc-definitions/design-study_definition.md) |
 | `workflow/reports/` | Reports | [report_definition.md](../doc-definitions/report_definition.md) |
+| `workflow/reviews/` | Reviews | [review_definition.md](../doc-definitions/review_definition.md) |
 | `workflow/arch-designs/` | Architecture designs | [arch-design_definition.md](../doc-definitions/arch-design_definition.md) |
 
 ### 1.4. Archive Structure
@@ -115,6 +117,7 @@ The last underscore-delimited segment is always the doctype. This is positional,
 | `_definition` | Doc-definitions | Defines the format and conventions for a document type |
 | `_standards` | Standards | Defines conventions for a domain or practice |
 | `_report` | Workflow | Point-in-time descriptive survey with structured analysis and conclusions |
+| `_review` | Workflow | Point-in-time assessment of one change against a baseline: issues by root cause and priority, each with a recommendation |
 | `_setup` | Reference | Installation and configuration record |
 
 This set grows only when a genuinely new document type emerges. Before adding a suffix, check whether the document fits an existing type.
@@ -197,6 +200,7 @@ When a document needs to mention an external resource (an upstream standard, a t
 | Feature specification (deprecated) | `workflow/specs/` | `YYYY-MM-DD_<topic>_spec.md` |
 | Design note | `workflow/design-notes/` | `YYYY-MM-DD_<topic>_design-note.md` |
 | Descriptive survey/report | `workflow/reports/` | `YYYY-MM-DD_<topic>_report.md` |
+| Change review | `workflow/reviews/` | `YYYY-MM-DD_<topic>_review.md` |
 | Design study | `workflow/design-studies/` | `YYYY-MM-DD_<topic>_design-study.md` |
 | Architecture design | `workflow/arch-designs/` | `<topic>_arch-design.md` |
 | Architecture assessment | `workflow/arch-assessments/` | `<component>_arch-assessment.md` |
